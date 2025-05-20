@@ -1,0 +1,154 @@
+<li class="nav-item-header mt-2">
+</li>
+
+<li class="nav-item">
+    <style>
+        /* Styles for filter sidebar */
+        .dropdown-menu {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .dropdown-item.active {
+            background-color: #0d6efd;
+            color: white;
+        }
+    </style>
+    <form method="get" action="{% url 'item_list' %}" class="px-2" id="filterForm">
+
+        <div class="mb-2 sidebar-resize-hide">
+            <label class="form-label small mb-1 text-light" for="cityInput">City</label>
+            <input type="text" name="city" class="form-control bg-dark text-light"
+                   id="cityInput" placeholder="e.g. New York" value="{{ city_filter|default_if_none:'' }}">
+        </div>
+
+        <div class="mb-2 sidebar-resize-hide">
+            <label class="form-label small mb-1 text-light" for="keywordsInput">Name</label>
+            <input type="text" name="keywords" class="form-control bg-dark text-light"
+                   id="keywordsInput" placeholder="e.g. search by name" value="{{ keywords|default_if_none:'' }}">
+        </div>
+
+        <div class="mb-3 sidebar-resize-hide">
+            <label class="form-label small mb-1 text-light" for="postcodeInput">Postal Code</label>
+            <input type="text" name="postcode" class="form-control bg-dark text-light"
+                   id="postcodeInput" placeholder="e.g. 12345" value="{{ postcode_filter|default_if_none:'' }}">
+        </div>
+
+        <div class="col-auto mb-2 sidebar-resize-hide">
+            <label class="form-label small mb-1 text-light">Country</label>
+            <div class="dropdown h-100">
+                <button class="btn btn-outline-light text-light dropdown-toggle h-100" style="width: 100%;" id="dropdownMenuCountry"
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    {% if country_filter %}
+                        {{ country_filter }}
+                    {% else %}
+                        Select Country
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu bg-dark text-light border-white" aria-labelledby="dropdownMenuCountry"
+                    style="max-height: 300px; overflow-y: auto;" id="countryDropdown">
+                    {% for country in countries %}
+                        <li>
+                            <div class="form-check my-1 text-light px-3">
+                                <input class="form-check-input ms-2 country-radio" type="radio" name="country"
+                                       value="{{ country }}" id="country-{{ forloop.counter }}"
+                                       {% if country == country_filter %}checked{% endif %}>
+                                <label class="form-check-label ms-2" for="country-{{ forloop.counter }}">
+                                    {{ country }}
+                                </label>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-auto mb-2 sidebar-resize-hide">
+            <label class="form-label small mb-1 text-light">Category</label>
+            <div class="dropdown h-100">
+                <button class="btn btn-outline-light text-light dropdown-toggle h-100" id="dropdownMenuCategory"
+                        data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" style="width: 100%;">
+                    {% if category_filter %}
+                        {{ category_filter.name }}
+                    {% else %}
+                        Select Category
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu bg-dark text-light border-white" aria-labelledby="dropdownMenuCategory"
+                    style="max-height: 300px; overflow-y: auto;">
+                    {% for category in categories %}
+                        <li>
+                            <div class="form-check my-1 text-light px-3">
+                                <input class="form-check-input ms-2" type="radio" name="category"
+                                       value="{{ category.slug }}" id="category-{{ forloop.counter }}"
+                                       {% if category.slug == category_slug %}checked{% endif %}>
+                                <label class="form-check-label ms-2" for="category-{{ forloop.counter }}">
+                                    {{ category.name }}
+                                </label>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-3 sidebar-resize-hide">
+            <button type="submit" class="btn btn-sm btn-primary w-100">Apply Filters</button>
+        </div>
+
+        <!-- Button to clear filters -->
+        <div class="mt-2 sidebar-resize-hide">
+            <button type="button" id="clearFiltersButton" class="btn btn-sm btn-primary w-100">Clear Filters</button>
+        </div>
+
+    </form>
+</li>
+
+<script>
+    // Find all radio buttons with class .country-radio
+    document.querySelectorAll('.country-radio').forEach(function(radioButton) {
+        radioButton.addEventListener('change', function() {
+            // Update button text with selected country
+            const selectedCountry = radioButton.value;
+            const button = document.getElementById('dropdownMenuCountry');
+            button.textContent = selectedCountry;
+        });
+    });
+</script>
+
+<script>
+    document.querySelectorAll('input[name="category"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            const selectedCategory = document.querySelector('input[name="category"]:checked');
+            const button = document.getElementById('dropdownMenuCategory');
+
+            if (selectedCategory) {
+                const label = selectedCategory.nextElementSibling.textContent.trim();
+                button.textContent = label;
+            } else {
+                button.textContent = 'Select Category';
+            }
+        });
+    });
+</script>
+
+<script>
+    document.getElementById('clearFiltersButton').addEventListener('click', function () {
+        const form = document.getElementById('filterForm');
+
+        // Reset text inputs
+        form.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+
+        // Reset radio buttons
+        form.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+
+        // Reset dropdown button texts
+        document.getElementById('dropdownMenuCountry').textContent = 'Select Country';
+        document.getElementById('dropdownMenuCategory').textContent = 'Select Category';
+
+        // Submit the form to refresh the page
+        form.submit();
+    });
+</script>

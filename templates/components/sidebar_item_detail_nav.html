@@ -1,0 +1,45 @@
+<li class="nav-item-header">
+    <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Item Detail Navigation</div>
+    <i class="ph-dots-three sidebar-resize-show me-2"></i>
+</li>
+
+<li class="nav-item">
+    <div>
+        <div class="list-group list-group-borderless">
+            <a href="#basic-info" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                <i class="ph ph-identification-card me-2"></i>
+                <span class="sidebar-resize-hide">Basic Info</span>
+            </a>
+            <a href="#description" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                <i class="ph ph-article me-2"></i>
+                <span class="sidebar-resize-hide">Description</span>
+            </a>
+            <a href="#contact-info" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                <i class="ph ph-phone me-2"></i>
+                <span class="sidebar-resize-hide">Contact Info</span>
+            </a>
+            <a href="#address" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                <i class="ph ph-map-pin-line me-2"></i>
+                <span class="sidebar-resize-hide">Address</span>
+            </a>
+            {% if specialties %}
+            <a href="#specialties" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                <i class="ph ph-list-checks me-2"></i>
+                <span class="sidebar-resize-hide">Specialties</span>
+            </a>
+            {% endif %}
+            {% if stats_by_category %}
+            <a href="#statistics" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                <i class="ph ph-chart-bar me-2"></i>
+                <span class="sidebar-resize-hide">Statistics</span>
+            </a>
+            {% endif %}
+            {% if item.metadata %}
+            <a href="#additional-info" class="list-group-item list-group-item-action bg-transparent text-white border-0">
+                <i class="ph ph-info me-2"></i>
+                <span class="sidebar-resize-hide">Additional Info</span>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</li>

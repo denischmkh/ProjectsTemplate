@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ item.name }} - Details{% endblock title %}
+
+{% block content %}
+<div class="content-wrapper">
+    <style>
+        /* Adjustments for table layout within card body */
+        .card-body table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .card-body table td {
+            padding: 8px;
+            vertical-align: top;
+            border-top: none;
+        }
+        .card-body table.table-borderless tbody tr:not(:last-child) td {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .card-body table tr td:first-child {
+            font-weight: bold;
+            width: 35%;
+            min-width: 120px;
+        }
+        .specialty-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .specialty-list li {
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            background-color: #f8f9fa;
+            border-left: 3px solid #007bff;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+    </style>
+
+    <div class="content">
+        <div class="row">
+            <div class="col-lg-12">
+                {# Row 1: Basic Info and Description #}
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div id="basic-info" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0"><i class="ph ph-identification-card me-2"></i> Basic Info</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4 align-items-center g-3">
+                                    <div class="col-md-4 text-center">
+                                        {% if item.image %}
+                                            <img src="{{ item.image }}" alt="{{ item.name }}" class="img-fluid rounded" style="width: 120px; height: 160px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 160px;">
+                                                <i class="ph ph-user-circle" style="font-size: 80px;"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-8">
+                                        <table class="table table-borderless table-sm">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Name:</td>
+                                                    <td>{{ item.name|default:"-" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Category:</td>
+                                                    <td>{{ item.category.name|default:"-" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Status:</td>
+                                                    <td>
+                                                        {% if item.is_active %}
+                                                            <span class="text-success bg-success bg-opacity-25 py-1 px-2 d-inline-block text-center rounded">Active</span>
+                                                        {% else %}
+                                                            <span class="text-danger bg-danger bg-opacity-25 py-1 px-2 d-inline-block text-center rounded">Inactive</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% if item.is_featured %}
+                                                <tr>
+                                                    <td>Featured:</td>
+                                                    <td><span class="text-success bg-success bg-opacity-25 py-1 px-2 d-inline-block text-center rounded">Yes</span></td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if item.rating %}
+                                                <tr>
+                                                    <td>Rating:</td>
+                                                    <td>{{ item.rating }}</td>
+                                                </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div id="description" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0"><i class="ph ph-article me-2"></i> Description</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>{{ item.description|default:"No description available." }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Row 2: Contact Info and Specialties #}
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div id="contact-info" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0"><i class="ph ph-phone me-2"></i> Contact Info</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td>Email:</td>
+                                            <td>{% if item.email %}<a href="mailto:{{ item.email }}">{{ item.email }}</a>{% else %}-{% endif %}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Phone 1:</td>
+                                            <td>{{ item.phone_1|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Phone 2:</td>
+                                            <td>{{ item.phone_2|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Website:</td>
+                                            <td>
+                                                {% if item.website %}
+                                                    <a href="{{ item.website }}" target="_blank" rel="noopener noreferrer">{{ item.website }}</a>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="card-footer text-center">
+                                <h6 class="fw-semibold mb-2">Social Links</h6>
+                                <ul class="list-inline mb-0">
+                                    {% if item.facebook %}
+                                        <li class="list-inline-item">
+                                            <a href="{{ item.facebook }}" target="_blank" rel="noopener noreferrer"><i class="ph ph-facebook-logo me-1"></i> Facebook</a>
+                                        </li>
+                                    {% endif %}
+                                    {% if item.instagram %}
+                                        <li class="list-inline-item">
+                                            <a href="{{ item.instagram }}" target="_blank" rel="noopener noreferrer"><i class="ph ph-instagram-logo me-1"></i> Instagram</a>
+                                        </li>
+                                    {% endif %}
+                                    {% if item.linkedin %}
+                                        <li class="list-inline-item">
+                                            <a href="{{ item.linkedin }}" target="_blank" rel="noopener noreferrer"><i class="ph ph-linkedin-logo me-1"></i> LinkedIn</a>
+                                        </li>
+                                    {% endif %}
+                                    {% if item.youtube %}
+                                        <li class="list-inline-item">
+                                            <a href="{{ item.youtube }}" target="_blank" rel="noopener noreferrer"><i class="ph ph-youtube-logo me-1"></i> YouTube</a>
+                                        </li>
+                                    {% endif %}
+                                    {% if item.twitter %}
+                                        <li class="list-inline-item">
+                                            <a href="{{ item.twitter }}" target="_blank" rel="noopener noreferrer"><i class="ph ph-twitter-logo me-1"></i> Twitter</a>
+                                        </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div id="address" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0"><i class="ph ph-map-pin-line me-2"></i> Address</h6>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-borderless table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td>Address Line 1:</td>
+                                            <td>{{ item.address_line1|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Address Line 2:</td>
+                                            <td>{{ item.address_line2|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>City:</td>
+                                            <td>{{ item.city|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>State/Province:</td>
+                                            <td>{{ item.state|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Country:</td>
+                                            <td>{{ item.country|default:"-" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Postal Code:</td>
+                                            <td>{{ item.postal_code|default:"-" }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Row 3: Specialties and Statistics #}
+                <div class="row">
+                    {% if specialties %}
+                    <div class="col-md-6 mb-4">
+                        <div id="specialties" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0"><i class="ph ph-list-checks me-2"></i> Specialties</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="specialty-list">
+                                    {% for specialty in specialties %}
+                                        <li>{{ specialty.name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if stats_by_category %}
+                    <div class="col-md-{% if specialties %}6{% else %}12{% endif %} mb-4">
+                        <div id="statistics" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0"><i class="ph ph-chart-bar me-2"></i> Statistics</h6>
+                            </div>
+                            <div class="card-body">
+                                {% for category, stats in stats_by_category.items %}
+                                    <h6 class="mt-3 mb-2">{{ category|title }}</h6>
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            {% for stat in stats %}
+                                                <tr>
+                                                    <td>{{ stat.name|title }}</td>
+                                                    <td>{{ stat.value }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# Row 4: Additional Information from Metadata #}
+                {% if item.metadata %}
+                <div class="row">
+                    <div class="col-lg-12 mb-4">
+                        <div id="additional-info" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0"><i class="ph ph-info me-2"></i> Additional Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    {% for key, value in item.metadata.items %}
+                                        <div class="col-md-6 mb-3">
+                                            <h6 class="fw-bold">{{ key|title }}</h6>
+                                            {% if value|length <= 1 %}
+                                                <p>{{ value }}</p>
+                                            {% else %}
+                                                <ul class="list-unstyled">
+                                                    {% for item_value in value %}
+                                                        <li>{{ item_value }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
