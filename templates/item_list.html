@@ -125,9 +125,8 @@
 
     </div>
 </div>
-{% if next_page %}
-{% if previous_page %}
 
+{% if previous_page or next_page %}
 <nav class="d-flex justify-content-center bg-light p-3">
                     <ul class="pagination" id="pagination">
                             {% if previous_page %}
@@ -145,6 +144,5 @@
                             {% endif %}
                     </ul>
                 </nav>
-{% endif %}
 {% endif %}
 {% endblock %}
