@@ -23,7 +23,6 @@ async def start_client():
 
 # Гарантируем, что клиент стартован, и можно ждать вызова
 loop = asyncio.get_event_loop()
-loop.run_until_complete(start_client())
 async def get_all_groups_dict():
     async with TelegramClient('session_name1', api_id, api_hash) as client:
         await client.start(phone)
