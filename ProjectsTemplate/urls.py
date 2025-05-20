@@ -26,5 +26,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('group/<int:chat_id>/<str:title>/', views.group_info, name='group_info'),
+    path('user/<int:chat_id>/<int:user_id>/', views.user_msgs, name='user_msgs'),
 ]
 

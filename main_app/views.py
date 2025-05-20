@@ -53,10 +53,12 @@ def group_info(request, chat_id, title, page=1):
 
 
 
-def item_detail(request, chat_id, user_id, page=1):
-    create_posts_sync(chat_id=chat_id, user_id=user_id, page=page)
-    posts = Post.objects.filter(sender_id=chat_id, chat_id=chat_id)
-    return render(request, 'item_detail.html', {'posts': posts})
+def user_msgs(request, chat_id, user_id):
+    create_posts_sync(chat_id=chat_id, user_id=user_id)
+    posts = Post.objects.filter(sender_id=user_id, chat_id=chat_id)
+    user = TelegramUser.objects.filter(telegram_id=user_id).first()
+    return render(request, 'item_detail.html', {'posts': posts,
+                                                'user': user})
 
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect

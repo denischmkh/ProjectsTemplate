@@ -12,6 +12,7 @@ from .models import Post  # Замените на правильный путь 
 from django.utils import timezone
 from telethon.tl.functions.channels import JoinChannelRequest
 from telethon.errors import FloodWaitError, UserAlreadyParticipantError
+from telethon.tl.types import PeerChannel
 
 api_id = 28632508
 api_hash = '6d260b5e6e9a606f44a38fc43bbe8bbc'
@@ -51,109 +52,41 @@ async def join_group_and_get_info(group_link_or_username):
         return chat.id, chat.title
 
 @sync_to_async
-def save_post(post):
-    post.save()
+def save_post(msg, chat_id):
+    text = msg.message.replace("\n", " ").replace("\r", "") if msg.message else None
 
-async def collect_posts_by_chat_id(chat_id, target_user_id, page=1, page_size=100):
+    photo = "No photo"
+    if isinstance(msg.media, MessageMediaPhoto):
+        photo = f"photo_{msg.id}.jpg"
+        # файл нужно сохранить отдельно через `await client.download_media(...)`
+
+    Post.objects.get_or_create(
+        date=str(timezone.localtime(msg.date)),
+        sender_id=msg.sender_id,
+        chat_id=chat_id,
+        text=text,
+        photo=photo,
+        comment_count="Not Available"
+    )
+
+async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
     async with TelegramClient('session_name1', api_id, api_hash) as client:
         print("📡 Подключение к Telegram...")
 
-        dialogs = await client(GetDialogsRequest(
-            offset_date=None,
-            offset_id=0,
-            offset_peer=InputPeerEmpty(),
-            limit=200,
-            hash=0
-        ))
+        async for msg in client.iter_messages(PeerChannel(chat_id), from_user=target_user_id, limit=max_messages):
+            if not msg.message:
+                continue
 
-        groups = dialogs.chats
-        target_group = next((g for g in groups if g.id == chat_id), None)
+            print(f"📩 Найдено сообщение: {msg.id} — {msg.message}")
 
-        if not target_group:
-            print("❌ Группа с таким chat_id не найдена.")
-            return
+            await save_post(msg, chat_id)
 
-        print(f"\n📥 Парсинг сообщений из: {target_group.title}")
-
-        matched_messages = []
-        offset_id = 0
-        messages_to_skip = (page - 1) * page_size
-        messages_collected = 0
-
-        while True:
-            history = await client(GetHistoryRequest(
-                peer=target_group,
-                offset_id=offset_id,
-                limit=100,
-                max_id=0,
-                min_id=0,
-                add_offset=0,
-                offset_date=None,
-                hash=0
-            ))
-
-            if not history.messages:
-                break
-
-            for msg in history.messages:
-                offset_id = msg.id  # Обновляем даже если не подошёл
-
-                if getattr(msg, 'sender_id', None) != target_user_id or not hasattr(msg, 'message'):
-                    continue
-
-                if messages_to_skip > 0:
-                    messages_to_skip -= 1
-                    continue
-
-                matched_messages.append(msg)
-                messages_collected += 1
-
-                if messages_collected >= page_size:
-                    break
-
-            print(f"🔎 Отобрано {messages_collected} сообщений пользователя {target_user_id}")
-            if messages_collected >= page_size:
-                break
-
-            await asyncio.sleep(1)
-
-        for message in matched_messages:
-            text = message.message.replace("\n", " ").replace("\r", "") if message.message else None
-
-            if isinstance(message.media, MessageMediaPhoto):
-                photo_filename = f"photo_{message.id}.jpg"
-                photo_path = await client.download_media(
-                    message.media,
-                    file=os.path.join(os.getcwd(), 'static', 'img', photo_filename)
-                )
-                photo = photo_filename
-            else:
-                photo = "No photo"
-
-            date_str = timezone.localtime(message.date)
-
-            post, created = await Post.objects.aget_or_create(
-                sender_id=str(message.sender_id),
-                chat_id=target_group.id,
-                text=text,
-                defaults={
-                    'date': date_str,
-                    'photo': photo,
-                    'comment_count': 'Not Available'
-                }
-            )
-
-            if created:
-                print(f"✅ Пост {message.id} сохранён.")
-            else:
-                print(f"⚠️ Пост {message.id} уже существует, пропущен.")
-
-        print(f"🎉 Завершено. Загружено {len(matched_messages)} сообщений для страницы {page}.")
+        print(f"✅ Все сообщения от пользователя {target_user_id} сохранены.")
 
 
 def join_and_get_info_sync(group_link_or_username):
     return async_to_sync(join_group_and_get_info)(group_link_or_username)
 
-def create_posts_sync(chat_id, user_id, page):
+def create_posts_sync(chat_id, user_id):
     # Вызываем async функцию синхронно
-    return async_to_sync(collect_posts_by_chat_id)(chat_id, user_id, page, 100)
+    return async_to_sync(collect_all_user_messages)(chat_id, user_id, 1000)

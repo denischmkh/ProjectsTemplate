@@ -63,22 +63,24 @@
                                         <table class="table table-borderless table-sm">
                                             <tbody>
                                                 <tr>
-                                                    <td>Name:</td>
-                                                    <td>{{ item.name|default:"-" }}</td>
+                                                    <td>Username:</td>
+                                                    <td>{{ user.username|default:"-" }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Category:</td>
-                                                    <td>{{ item.category.name|default:"-" }}</td>
+                                                    <td>First Name:</td>
+                                                    <td>{{ user.first_name|default:"-" }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td>Status:</td>
-                                                    <td>
-                                                        {% if item.is_active %}
-                                                            <span class="text-success bg-success bg-opacity-25 py-1 px-2 d-inline-block text-center rounded">Active</span>
-                                                        {% else %}
-                                                            <span class="text-danger bg-danger bg-opacity-25 py-1 px-2 d-inline-block text-center rounded">Inactive</span>
-                                                        {% endif %}
-                                                    </td>
+                                                    <td>Last Name:</td>
+                                                    <td>{{ user.last_name|default:"-" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Phone:</td>
+                                                    <td>{{ user.phone|default:"-" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Chat ID:</td>
+                                                    <td>{{ user.telegram_id|default:"-" }}</td>
                                                 </tr>
                                                 {% if item.is_featured %}
                                                 <tr>
