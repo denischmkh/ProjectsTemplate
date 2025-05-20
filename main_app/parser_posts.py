@@ -10,6 +10,8 @@ from telethon.tl.types import InputPeerEmpty, MessageMediaPhoto
 from telethon.tl.functions.messages import GetHistoryRequest
 from .models import Post  # Замените на правильный путь к вашей модели
 from django.utils import timezone
+from telethon.tl.functions.channels import JoinChannelRequest
+from telethon.errors import FloodWaitError, UserAlreadyParticipantError
 
 api_id = 28632508
 api_hash = '6d260b5e6e9a606f44a38fc43bbe8bbc'
@@ -23,18 +25,30 @@ async def start_client():
 
 # Гарантируем, что клиент стартован, и можно ждать вызова
 loop = asyncio.get_event_loop()
-async def get_all_groups_dict():
+
+
+async def join_group_and_get_info(group_link_or_username):
     async with TelegramClient('session_name1', api_id, api_hash) as client:
         await client.start(phone)
-        result = await client(GetDialogsRequest(
-            offset_date=None,
-            offset_id=0,
-            offset_peer=InputPeerEmpty(),
-            limit=200,
-            hash=0
-        ))
-        groups = [chat for chat in result.chats if getattr(chat, 'megagroup', False)]
-        return [(g.id, g.title) for g in groups]
+
+        try:
+            # Пробуем вступить в группу по username/link
+            await client(JoinChannelRequest(group_link_or_username))
+            print(f"✅ Вступили в группу {group_link_or_username}")
+        except UserAlreadyParticipantError:
+            print("Уже состоим в группе")
+        except FloodWaitError as e:
+            print(f"Ждем {e.seconds} секунд из-за FloodWait")
+            await asyncio.sleep(e.seconds)
+        except Exception as e:
+            print(f"Ошибка при вступлении: {e}")
+            # Можно решать, дальше ли пробовать
+
+        # Получаем объект чата
+        chat = await client.get_entity(group_link_or_username)
+
+        # Возвращаем id и название
+        return chat.id, chat.title
 
 @sync_to_async
 def save_post(post):
@@ -136,9 +150,9 @@ async def collect_posts_by_chat_id(chat_id, target_user_id, page=1, page_size=10
 
         print(f"🎉 Завершено. Загружено {len(matched_messages)} сообщений для страницы {page}.")
 
-def get_groups_sync():
-    # Вызываем async функцию синхронно
-    return async_to_sync(get_all_groups_dict)()
+
+def join_and_get_info_sync(group_link_or_username):
+    return async_to_sync(join_group_and_get_info)(group_link_or_username)
 
 def create_posts_sync(chat_id, user_id, page):
     # Вызываем async функцию синхронно

@@ -27,9 +27,7 @@
                     <tr>
                         <!-- Name with Profile Link -->
                         <td style="white-space: nowrap;">
-                          <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id %}">
                             {{ user.telegram_id|default:"-" }}
-                          </a>
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
                             {% if user.username %}

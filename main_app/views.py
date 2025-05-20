@@ -1,22 +1,36 @@
 import asyncio
+import urllib
 
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from asgiref.sync import async_to_sync
+from django.urls import reverse
+
 from .models import Post, TelegramUser
 
 from .forms import LoginForm, SignupForm  # ✅ лучше и понятнее
-from .parser_posts import get_groups_sync, create_posts_sync
+from .parser_posts import join_and_get_info_sync, create_posts_sync
 from .parser_users import create_users_sync
 
 def index(request):
-    groups = get_groups_sync()
-    return render(request, 'index.html', context={'groups': groups})
+    if request.method == 'POST':
+        group_link = request.POST.get('group_link')
+        if group_link:
+            chat_id, title = join_and_get_info_sync(group_link)
+            safe_title = urllib.parse.quote(title, safe='')
+            url = reverse('group_info', kwargs={'chat_id': chat_id, 'title': safe_title})
+            return redirect(url)
+
+        # Если group_link пустой, просто снова показываем форму
+        return render(request, 'index.html')
+
+    # Для GET запроса просто показываем форму (input)
+    return render(request, 'index.html')
 
 
-def item_list(request, chat_id: int, page=1):
-    start = (page-1)*50
-    end = page*50
+def group_info(request, chat_id, title, page=1):
+    start = (page - 1) * 50
+    end = page * 50
     create_users_sync(chat_id=chat_id, page=page)
     users = TelegramUser.objects.filter(chat_id=chat_id)[start:end]
     if len(users) < 50:
@@ -30,11 +44,13 @@ def item_list(request, chat_id: int, page=1):
         has_previous = False
 
     return render(request, 'item_list.html', context={
-                                                      'users': users,
-                                                      'current_page': page,
-                                                      'next_page': page+1 if has_next else None,
-                                                      'previous_page': page-1 if has_previous else None,
-                                                      'chat_id': chat_id})
+        'users': users,
+        'current_page': page,
+        'next_page': page + 1 if has_next else None,
+        'previous_page': page - 1 if has_previous else None,
+        'chat_id': chat_id})
+
+
 
 
 def item_detail(request, chat_id, user_id, page=1):

@@ -25,9 +25,6 @@ from main_app import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('items/<int:chat_id>/<int:page>', views.item_list, name='item_list'),
-    path('user/<int:chat_id>/<int:user_id>', views.item_detail, name='user_msgs'),
-    path('login/', views.login_page, name='account_signin'),
-    path('register/', views.register_page, name='account_signup')
+    path('group/<int:chat_id>/<str:title>/', views.group_info, name='group_info'),
 ]
 
