@@ -40,11 +40,10 @@ async def get_all_groups_dict():
 def save_post(post):
     post.save()
 
-async def collect_posts_by_chat_id(chat_id):
+async def collect_posts_by_chat_id(chat_id, target_user_id, page=1, page_size=100):
     async with TelegramClient('session_name1', api_id, api_hash) as client:
         print("📡 Подключение к Telegram...")
 
-        # Получаем список чатов
         dialogs = await client(GetDialogsRequest(
             offset_date=None,
             offset_id=0,
@@ -54,8 +53,6 @@ async def collect_posts_by_chat_id(chat_id):
         ))
 
         groups = dialogs.chats
-
-        # Ищем нужную группу по chat_id
         target_group = next((g for g in groups if g.id == chat_id), None)
 
         if not target_group:
@@ -64,15 +61,16 @@ async def collect_posts_by_chat_id(chat_id):
 
         print(f"\n📥 Парсинг сообщений из: {target_group.title}")
 
-        all_messages = []
+        matched_messages = []
         offset_id = 0
-        limit = 100
+        messages_to_skip = (page - 1) * page_size
+        messages_collected = 0
 
         while True:
             history = await client(GetHistoryRequest(
                 peer=target_group,
                 offset_id=offset_id,
-                limit=limit,
+                limit=100,
                 max_id=0,
                 min_id=0,
                 add_offset=0,
@@ -83,23 +81,36 @@ async def collect_posts_by_chat_id(chat_id):
             if not history.messages:
                 break
 
-            all_messages.extend(history.messages)
-            offset_id = history.messages[-1].id
-            print(f"Загружено: {len(all_messages)} сообщений")
+            for msg in history.messages:
+                offset_id = msg.id  # Обновляем даже если не подошёл
+
+                if getattr(msg, 'sender_id', None) != target_user_id or not hasattr(msg, 'message'):
+                    continue
+
+                if messages_to_skip > 0:
+                    messages_to_skip -= 1
+                    continue
+
+                matched_messages.append(msg)
+                messages_collected += 1
+
+                if messages_collected >= page_size:
+                    break
+
+            print(f"🔎 Отобрано {messages_collected} сообщений пользователя {target_user_id}")
+            if messages_collected >= page_size:
+                break
+
             await asyncio.sleep(1)
 
-        # Обработка сообщений
-        for message in all_messages:
-            if not hasattr(message, 'message'):
-                continue
-
+        for message in matched_messages:
             text = message.message.replace("\n", " ").replace("\r", "") if message.message else None
 
             if isinstance(message.media, MessageMediaPhoto):
                 photo_filename = f"photo_{message.id}.jpg"
                 photo_path = await client.download_media(
                     message.media,
-                    file=os.path.join(os.getcwd(), '..', 'results', 'img', photo_filename)
+                    file=os.path.join(os.getcwd(), 'static', 'img', photo_filename)
                 )
                 photo = photo_filename
             else:
@@ -107,7 +118,6 @@ async def collect_posts_by_chat_id(chat_id):
 
             date_str = timezone.localtime(message.date)
 
-            # Сохраняем пост или пропускаем, если уже есть
             post, created = await Post.objects.aget_or_create(
                 sender_id=str(message.sender_id),
                 chat_id=target_group.id,
@@ -124,12 +134,12 @@ async def collect_posts_by_chat_id(chat_id):
             else:
                 print(f"⚠️ Пост {message.id} уже существует, пропущен.")
 
-        print(f"🎉 Обработка завершена. Всего сообщений: {len(all_messages)}")
+        print(f"🎉 Завершено. Загружено {len(matched_messages)} сообщений для страницы {page}.")
 
 def get_groups_sync():
     # Вызываем async функцию синхронно
     return async_to_sync(get_all_groups_dict)()
 
-def create_posts_sync(chat_id):
+def create_posts_sync(chat_id, user_id, page):
     # Вызываем async функцию синхронно
-    return async_to_sync(collect_posts_by_chat_id)(chat_id)
+    return async_to_sync(collect_posts_by_chat_id)(chat_id, user_id, page, 100)

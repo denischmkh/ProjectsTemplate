@@ -37,9 +37,10 @@ def item_list(request, chat_id: int, page=1):
                                                       'chat_id': chat_id})
 
 
-def item_detail(request, chat_id, user_id):
-
-    return render(request, 'item_detail.html')
+def item_detail(request, chat_id, user_id, page=1):
+    create_posts_sync(chat_id=chat_id, user_id=user_id, page=page)
+    posts = Post.objects.filter(sender_id=chat_id, chat_id=chat_id)
+    return render(request, 'item_detail.html', {'posts': posts})
 
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect

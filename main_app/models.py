@@ -3,8 +3,8 @@ from django.db import models
 
 class Post(models.Model):
     date = models.CharField()
-    sender_id = models.CharField()
-    chat_id = models.IntegerField()
+    sender_id = models.BigIntegerField()
+    chat_id = models.BigIntegerField()
     text = models.TextField(null=True)
     photo = models.CharField(null=True)
     comment_count = models.CharField(null=True)
