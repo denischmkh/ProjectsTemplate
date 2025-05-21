@@ -10,23 +10,37 @@
         <table class="table tasks-list" style="table-layout: fixed;">
             <thead>
                 <tr>
+                    <th style="width: 110px;">Photo</th>
                     <th style="width: 110px;">Telegram Id</th>
-                    <th style="width: 120px;">Username</th>
+                    <th style="width: 150px;">Username</th>
                     <th style="width: 120px;">First Name</th>
                     <th style="width: 120px;">Last Name</th>
                     <th style="width: 130px;">Phone</th>
                     <th style="width: 90px;">Bot</th>
-                    <th style="width: 95px;">Restricted</th>
-                    <th style="width: 90px;">Fake</th>
                     <th style="width: 90px;">Scam</th>
                     <th style="width: 90px;">Premium</th>
-                    <th style="width: 120px;">Scraped At</th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
                     <tr>
                         <!-- Name with Profile Link -->
+                        <td style="white-space: nowrap;">
+                        {% if user.image %}
+                            <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id page=1 %}">
+                            <img src="/media/{{ user.image }}" alt="{{ user.chat_id }}"
+                                 class="rounded-circle"
+                                 style="width: 50px; height: 50px; object-fit: cover;">
+                            </a>
+                        {% else %}
+                            <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id page=1 %}">
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px;">
+                                <i class="ph ph-user-circle fs-3 text-secondary"></i>
+                            </div>
+                            </a>
+                        {% endif %}
+                        </td>
                         <td style="white-space: nowrap;">
                           <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id page=1 %}">
                             {{ user.telegram_id|default:"-" }}
@@ -64,28 +78,6 @@
                             {% endif %}
                         </td>
                         <td class="text-center">
-                            {% if user.is_restricted %}
-                                <div class="text-success bg-success bg-opacity-25">
-                                    Yes
-                                </div>
-                            {% else %}
-                                <div class="text-danger bg-danger bg-opacity-25">
-                                    No
-                                </div>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            {% if user.is_fake %}
-                                <div class="text-success bg-success bg-opacity-25">
-                                    Yes
-                                </div>
-                            {% else %}
-                                <div class="text-danger bg-danger bg-opacity-25">
-                                    No
-                                </div>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
                             {% if user.is_scam %}
                                 <div class="text-success bg-success bg-opacity-25">
                                     Yes
@@ -107,13 +99,6 @@
                                 </div>
                             {% endif %}
                         </td>
-                        <td>
-                                {{ user.scraped_at|default:"-" }}
-                        </td>
-                        
-
-                        
-
 
 
                         
