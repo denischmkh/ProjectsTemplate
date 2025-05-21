@@ -1,5 +1,7 @@
 import asyncio
 import os.path
+import sys
+from pathlib import Path
 
 from asgiref.sync import sync_to_async, async_to_sync
 from telethon import TelegramClient
@@ -7,6 +9,9 @@ from telethon.tl.functions.channels import GetParticipantsRequest
 from telethon.tl.types import ChannelParticipantsSearch
 from django.utils import timezone
 from .models import TelegramUser  # замените на правильный импорт
+BASE_DIR = Path(__file__).resolve().parent
+sys.path.append(str(BASE_DIR))
+from ProjectsTemplate import settings
 
 api_id = 28632508
 api_hash = '6d260b5e6e9a606f44a38fc43bbe8bbc'
@@ -67,8 +72,10 @@ async def collect_users_by_chat_id(chat_id, page):
             image_filename = None
 
             try:
-                photo_path = await client.download_profile_photo(user, file=os.path.join(os.getcwd(), 'main_app', 'static', 'img',
-                                                                                         'users', f'{user.id}.jpg'))
+                photo_path = await client.download_profile_photo(
+                    user,
+                    file=os.path.join(settings.MEDIA_ROOT, 'img', 'users', f'{user.id}.jpg')
+                )
                 image_filename = f"img/users/{user.id}.jpg"
             except Exception as e:
                 print(f"⚠️ Не удалось скачать фото для пользователя {user.id}: {e}")
