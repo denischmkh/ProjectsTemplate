@@ -53,7 +53,7 @@ async def join_group_and_get_info(group_link_or_username):
         return chat.id, chat.title
 
 @sync_to_async
-def save_post(msg, chat_id):
+def save_post(msg, chat_id, target_user_id):
     text = msg.message.replace("\n", " ").replace("\r", "") if msg.message else None
 
     photo = "No photo"
@@ -66,7 +66,7 @@ def save_post(msg, chat_id):
     formatted = dt.strftime("%d %B %Y %H:%M:%S")
     Post.objects.get_or_create(
         date=formatted,
-        sender_id=msg.sender_id,
+        sender_id=target_user_id,
         chat_id=chat_id,
         text=text,
         photo=photo,
@@ -83,7 +83,7 @@ async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
 
             print(f"📩 Найдено сообщение: {msg.id} — {msg.message}")
 
-            await save_post(msg, chat_id)
+            await save_post(msg, chat_id, target_user_id)
 
         print(f"✅ Все сообщения от пользователя {target_user_id} сохранены.")
 
