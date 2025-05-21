@@ -2,6 +2,8 @@
 
 {% block title %}{{ item.name }} - Details{% endblock title %}
 
+{% load static %}
+
 {% block content %}
 <div class="content-wrapper">
     <style>
@@ -51,10 +53,10 @@
                             <div class="card-body">
                                 <div class="row mb-4 align-items-center g-3">
                                     <div class="col-md-4 text-center">
-                                        {% if item.image %}
-                                            <img src="{{ item.image }}" alt="{{ item.name }}" class="img-fluid rounded" style="width: 120px; height: 160px; object-fit: cover;">
+                                        {% if user.image %}
+                                            <img src="{% static user.image %}" alt="{{ user.chat_id }}" class="img-fluid rounded" style="width: 180px; height: 180px; object-fit: cover;">
                                         {% else %}
-                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 120px; height: 160px;">
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 180px; height: 180px;">
                                                 <i class="ph ph-user-circle" style="font-size: 80px;"></i>
                                             </div>
                                         {% endif %}
@@ -64,7 +66,11 @@
                                             <tbody>
                                                 <tr>
                                                     <td>Username:</td>
-                                                    <td>{{ user.username|default:"-" }}</td>
+                                                    {% if user.username %}
+                                                    <td>@{{ user.username }}</td>
+                                                    {% else %}
+                                                    <td>-</td>
+                                                    {% endif %}
                                                 </tr>
                                                 <tr>
                                                     <td>First Name:</td>
@@ -105,84 +111,9 @@
 
                 </div>
 
-                {# Row 2: Contact Info and Specialties #}
 
 
-                {# Row 3: Specialties and Statistics #}
-                <div class="row">
-                    {% if specialties %}
-                    <div class="col-md-6 mb-4">
-                        <div id="specialties" class="card shadow h-100">
-                            <div class="card-header bg-primary text-white py-3">
-                                <h6 class="m-0"><i class="ph ph-list-checks me-2"></i> Specialties</h6>
-                            </div>
-                            <div class="card-body">
-                                <ul class="specialty-list">
-                                    {% for specialty in specialties %}
-                                        <li>{{ specialty.name }}</li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if stats_by_category %}
-                    <div class="col-md-{% if specialties %}6{% else %}12{% endif %} mb-4">
-                        <div id="statistics" class="card shadow h-100">
-                            <div class="card-header bg-primary text-white py-3">
-                                <h6 class="m-0"><i class="ph ph-chart-bar me-2"></i> Statistics</h6>
-                            </div>
-                            <div class="card-body">
-                                {% for category, stats in stats_by_category.items %}
-                                    <h6 class="mt-3 mb-2">{{ category|title }}</h6>
-                                    <table class="table table-borderless table-sm">
-                                        <tbody>
-                                            {% for stat in stats %}
-                                                <tr>
-                                                    <td>{{ stat.name|title }}</td>
-                                                    <td>{{ stat.value }}</td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
                 </div>
-
-                {# Row 4: Additional Information from Metadata #}
-                {% if item.metadata %}
-                <div class="row">
-                    <div class="col-lg-12 mb-4">
-                        <div id="additional-info" class="card shadow h-100">
-                            <div class="card-header bg-primary text-white py-3">
-                                <h6 class="m-0"><i class="ph ph-info me-2"></i> Additional Information</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    {% for key, value in item.metadata.items %}
-                                        <div class="col-md-6 mb-3">
-                                            <h6 class="fw-bold">{{ key|title }}</h6>
-                                            {% if value|length <= 1 %}
-                                                <p>{{ value }}</p>
-                                            {% else %}
-                                                <ul class="list-unstyled">
-                                                    {% for item_value in value %}
-                                                        <li>{{ item_value }}</li>
-                                                    {% endfor %}
-                                                </ul>
-                                            {% endif %}
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
             </div>
         </div>
     </div>

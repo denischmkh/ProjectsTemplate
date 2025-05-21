@@ -16,6 +16,7 @@ class TelegramUser(models.Model):
     first_name = models.CharField(max_length=150, null=True, blank=True)
     last_name = models.CharField(max_length=150, null=True, blank=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
+    image = models.CharField(null=True)
 
     is_bot = models.BooleanField(default=False)
 

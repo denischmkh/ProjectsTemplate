@@ -1,4 +1,6 @@
 import asyncio
+import os.path
+
 from asgiref.sync import sync_to_async, async_to_sync
 from telethon import TelegramClient
 from telethon.tl.functions.channels import GetParticipantsRequest
@@ -10,8 +12,9 @@ api_id = 28632508
 api_hash = '6d260b5e6e9a606f44a38fc43bbe8bbc'
 phone = '+380999491488'
 
+
 @sync_to_async
-def save_user_to_db(user, chat_id):
+def save_user_to_db(user, chat_id, image_filename=None):
     obj, created = TelegramUser.objects.update_or_create(
         telegram_id=user.id,
         chat_id=chat_id,
@@ -25,13 +28,16 @@ def save_user_to_db(user, chat_id):
             'is_fake': getattr(user, 'fake', None),
             'is_scam': getattr(user, 'scam', None),
             'is_premium': getattr(user, 'premium', None),
-            'scraped_at': timezone.now()
+            'scraped_at': timezone.now(),
+            'image': image_filename
         }
     )
     return created
 
+
 def get_client():
     return TelegramClient('session_name1', api_id, api_hash)
+
 
 async def collect_users_by_chat_id(chat_id, page):
     client = get_client()
@@ -58,13 +64,22 @@ async def collect_users_by_chat_id(chat_id, page):
         print(f"Загружено пользователей: {len(all_users)}")
 
         for user in participants.users:
-            created = await save_user_to_db(user, chat_id)
+            image_filename = None
+
+            try:
+                photo_path = await client.download_profile_photo(user, file=os.path.join(os.getcwd(), 'main_app', 'static', 'img',
+                                                                                         'users', f'{user.id}.jpg'))
+                image_filename = f"img/users/{user.id}.jpg"
+            except Exception as e:
+                print(f"⚠️ Не удалось скачать фото для пользователя {user.id}: {e}")
+            created = await save_user_to_db(user, chat_id, image_filename)
             if created:
                 print(f"✅ Пользователь {user.id} сохранён")
             else:
                 print(f"⚠️ Пользователь {user.id} уже есть")
 
         print(f"🎉 Обработка пользователей завершена. Всего: {len(all_users)}")
+
 
 def create_users_sync(chat_id, page=1):
     return async_to_sync(collect_users_by_chat_id)(chat_id, page)
