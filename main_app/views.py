@@ -10,7 +10,7 @@ from django.urls import reverse
 from .models import Post, TelegramUser
 
 from .forms import LoginForm, SignupForm  # ✅ лучше и понятнее
-from .parser_posts import join_and_get_info_sync, create_posts_sync
+from .parser_posts import join_and_get_info_sync, create_posts_sync, create_posts_from_group_sync
 from .parser_users import create_users_sync
 
 def users_index(request):
@@ -93,6 +93,50 @@ def user_msgs(request, chat_id, user_id, page=1):
 
 def error_page(request):
     return render(request, 'error.html')
+
+
+def posts_index(request):
+    try:
+        if request.method == 'POST':
+            group_link = request.POST.get('group_link')
+            if group_link:
+                chat_id, title = join_and_get_info_sync(group_link)
+                safe_title = urllib.parse.quote(title, safe='')
+                url = reverse('group_posts', kwargs={'chat_id': chat_id, 'title': safe_title, 'page': 1})
+                return redirect(url)
+
+            # Если group_link пустой, просто снова показываем форму
+            return render(request, 'posts_index.html')
+
+        # Для GET запроса просто показываем форму (input)
+        return render(request, 'posts_index.html')
+    except Exception as e:
+        print(e)
+        return redirect('error')
+
+
+def group_posts(request, chat_id, title, page=1):
+    create_posts_from_group_sync(chat_id=chat_id, page=page)
+    create_users_sync(chat_id=chat_id)
+
+    start = (page - 1) * 100
+    end = page * 100
+    posts = Post.objects.filter(chat_id=chat_id).order_by('-date')[start: end]  # или order_by('-id')
+    posts = {post: TelegramUser.objects.filter(telegram_id=post.sender_id).first() for post in posts}
+    has_next = len(posts) == 100
+    has_previous = page > 1
+
+    title = unquote(title)
+    return render(request, 'posts_list.html', context={
+        'has_previous': has_previous,
+        'has_next': has_next,
+        'current_page': page,
+        'title': title,
+        'posts': posts,
+        'chat_id': chat_id,
+        'next_page': page + 1 if has_next else None,
+        'previous_page': page - 1 if has_previous else None,
+    })
 
 # from django.contrib.auth import authenticate, login
 # from django.shortcuts import redirect

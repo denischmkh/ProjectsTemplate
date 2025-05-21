@@ -27,6 +27,9 @@ urlpatterns = [
     path('users/', views.users_index, name='users_index'),
     path('users/group/<int:chat_id>/<str:title>/<int:page>', views.group_users_info, name='group_info'),
     path('users/profile/<int:chat_id>/<int:user_id>/<int:page>', views.user_msgs, name='user_msgs'),
-    path('users/error', views.error_page, name='error')
+    path('users/error', views.error_page, name='error'),
+
+    path('posts/', views.posts_index, name='posts_index'),
+    path('posts/group/<int:chat_id>/<str:title>/<int:page>', views.group_posts, name='group_posts'),
 ]
 
