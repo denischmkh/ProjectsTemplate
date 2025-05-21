@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ item.name }} - Details{% endblock title %}
+
+{% load static %}
+
+{% load tz %}  {# Добавь это вверху шаблона #}
+
+{% block content %}
+<div class="content-wrapper">
+    <style>
+        /* Adjustments for table layout within card body */
+        .card-body table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        .card-body table td {
+            padding: 8px;
+            vertical-align: top;
+            border-top: none;
+        }
+        .card-body table.table-borderless tbody tr:not(:last-child) td {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .card-body table tr td:first-child {
+            font-weight: bold;
+            width: 35%;
+            min-width: 120px;
+        }
+        .specialty-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .specialty-list li {
+            padding: 8px 15px;
+            margin-bottom: 5px;
+            background-color: #f8f9fa;
+            border-left: 3px solid #007bff;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+    </style>
+
+    <div class="content">
+        <div class="row">
+            <div class="col-lg-12">
+                {# Row 1: Basic Info and Description #}
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div id="basic-info" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0"><i class="ph ph-identification-card me-2"></i> Basic Info</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4 align-items-center g-3">
+                                    <div class="col-md-4 text-center">
+                                        {% if user.image %}
+                                            <img src="/media/{{ user.image }}" alt="{{ user.chat_id }}" class="img-fluid rounded" style="width: 180px; height: 180px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 180px; height: 180px;">
+                                                <i class="ph ph-user-circle" style="font-size: 80px;"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-8">
+                                        <table class="table table-borderless table-sm">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Username:</td>
+                                                    {% if user.username %}
+                                                    <td>@{{ user.username }}</td>
+                                                    {% else %}
+                                                    <td>-</td>
+                                                    {% endif %}
+                                                </tr>
+                                                <tr>
+                                                    <td>First Name:</td>
+                                                    <td>{{ user.first_name|default:"-" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Last Name:</td>
+                                                    <td>{{ user.last_name|default:"-" }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Phone:</td>
+                                                    {% if user.phone %}
+                                                    <td>+{{ user.phone }}</td>
+                                                    {% else %}
+                                                    <td>-</td>
+                                                    {% endif %}
+                                                </tr>
+                                                <tr>
+                                                    <td>Chat ID:</td>
+                                                    <td>{{ user.telegram_id|default:"-" }}</td>
+                                                </tr>
+                                                {% if item.is_featured %}
+                                                <tr>
+                                                    <td>Featured:</td>
+                                                    <td><span class="text-success bg-success bg-opacity-25 py-1 px-2 d-inline-block text-center rounded">Yes</span></td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if item.rating %}
+                                                <tr>
+                                                    <td>Rating:</td>
+                                                    <td>{{ item.rating }}</td>
+                                                </tr>
+                                                {% endif %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div id="additional-info" class="card shadow h-100">
+                            <div class="card-header bg-primary text-white py-3">
+                                <h6 class="m-0">
+                                    <i class="ph ph-plus-circle me-2"></i> Additional Information
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-4 align-items-center g-3">
+                                    <div class="col-md-12">
+                                        <table class="table table-borderless table-sm align-middle">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="pe-4">Is Bot:</td>
+                                                    <td>
+                                                        {% if user.is_bot %}
+                                                            <div class="text-success bg-success bg-opacity-25" style="padding-left: 15px; max-width: 55px">
+                                                                Yes
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="text-danger bg-danger bg-opacity-25" style="padding-left: 17px; max-width: 55px">
+                                                                No
+                                                            </div>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pe-4">Is Restricted:</td>
+                                                    <td>
+                                                        {% if user.is_restricted %}
+                                                            <div class="text-success bg-success bg-opacity-25" style="padding-left: 15px; max-width: 55px">
+                                                                Yes
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="text-danger bg-danger bg-opacity-25" style="padding-left: 17px; max-width: 55px">
+                                                                No
+                                                            </div>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pe-4">Is Fake:</td>
+                                                    <td>
+                                                        {% if user.is_fake %}
+                                                            <div class="text-success bg-success bg-opacity-25" style="padding-left: 15px; max-width: 55px">
+                                                                Yes
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="text-danger bg-danger bg-opacity-25" style="padding-left: 17px; max-width: 55px">
+                                                                No
+                                                            </div>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pe-4">Is Scam:</td>
+                                                    <td>
+                                                        {% if user.is_scam %}
+                                                            <div class="text-success bg-success bg-opacity-25" style="padding-left: 15px; max-width: 55px">
+                                                                Yes
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="text-danger bg-danger bg-opacity-25" style="padding-left: 17px; max-width: 55px">
+                                                                No
+                                                            </div>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pe-4">Is Premium:</td>
+                                                    <td>
+                                                        {% if user.is_premium %}
+                                                            <div class="text-success bg-success bg-opacity-25" style="padding-left: 15px; max-width: 55px">
+                                                                Yes
+                                                            </div>
+                                                        {% else %}
+                                                            <div class="text-danger bg-danger bg-opacity-25" style="padding-left: 17px; max-width: 55px">
+                                                                No
+                                                            </div>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                </div>
+            </div>
+
+
+        {% for post in posts %}
+            <div class="card mb-3 shadow-sm border-0">
+                <div class="card-body d-flex align-items-start">
+                    <!-- Аватар -->
+                    <div class="me-3">
+                        {% if user.image %}
+                            <img src="/media/{{ user.image }}" alt="{{ user.chat_id }}"
+                                 class="rounded-circle"
+                                 style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
+                                 style="width: 50px; height: 50px;">
+                                <i class="ph ph-user-circle fs-3 text-secondary"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Контент поста -->
+                    <div class="flex-grow-1">
+                        <p class="mb-2 fw-normal fs-5 text-dark">
+                            {{ post.text }}
+                        </p>
+                        <div class="text-end text-secondary small">
+                            <i class="bi bi-clock me-1"></i>
+                            Отправлено: {{ post.date }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

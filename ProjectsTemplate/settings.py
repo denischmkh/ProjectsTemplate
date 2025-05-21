@@ -76,27 +76,52 @@ WSGI_APPLICATION = 'ProjectsTemplate.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'telegram_parser1_db',
+        'USER': 'postgres',
+        'PASSWORD': 'denis2004',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
 #         'NAME': 'telegram_parser1_db',
-#         'USER': 'postgres',
-#         'PASSWORD': 'denis2004',
+#         'USER': 'admin',
+#         'PASSWORD': 'gthyfrde',
 #         'HOST': 'localhost',
 #         'PORT': '5432',
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'telegram_parser1_db',
-        'USER': 'admin',
-        'PASSWORD': 'gthyfrde',
-        'HOST': 'localhost',
-        'PORT': '5432',
+if os.getenv('DJANGO_ENV') == 'production':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'telegram_parser1_db',
+            'USER': 'admin',
+            'PASSWORD': 'gthyfrde',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'telegram_parser1_db',
+            'USER': 'postgres',
+            'PASSWORD': 'denis2004',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
+
+
 
 CSRF_TRUSTED_ORIGINS = [
     "http://65.108.48.53:7000",
@@ -125,7 +150,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kyiv'
 
 USE_I18N = True
 
