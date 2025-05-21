@@ -138,8 +138,13 @@ USE_TZ = True
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+if os.getenv('DJANGO_ENV') == 'production':
+    MEDIA_ROOT = '/var/www/project_media/'  # Ubuntu сервер, абсолютный путь к папке с медиа
+    MEDIA_URL = '/media/'
+else:
+    # Локальная Windows-машина
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # media в проекте локально
+    MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
