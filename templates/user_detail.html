@@ -241,6 +241,25 @@
                 </div>
             </div>
         {% endfor %}
+        {% if previous_page or next_page %}
+        <nav class="d-flex justify-content-center bg-light p-3">
+                            <ul class="pagination" id="pagination">
+                                    {% if previous_page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{% url 'user_msgs' chat_id=chat_id page=previous_page %}">Previous</a>
+                                        </li>
+                                    {% endif %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="#">{{current_page}}</a>
+                                    </li>
+                                    {% if next_page %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="{% url 'user_msgs' chat_id=chat_id page=next_page %}">Next</a>
+                                        </li>
+                                    {% endif %}
+                            </ul>
+                        </nav>
+        {% endif %}
         </div>
     </div>
 </div>

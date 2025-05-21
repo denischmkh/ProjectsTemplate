@@ -20,7 +20,7 @@ def users_index(request):
             if group_link:
                 chat_id, title = join_and_get_info_sync(group_link)
                 safe_title = urllib.parse.quote(title, safe='')
-                url = reverse('group_info', kwargs={'chat_id': chat_id, 'title': safe_title})
+                url = reverse('group_info', kwargs={'chat_id': chat_id, 'title': safe_title, 'page': 1})
                 return redirect(url)
 
             # Если group_link пустой, просто снова показываем форму
@@ -63,13 +63,30 @@ def group_users_info(request, chat_id, title, page=1):
 
 
 
-def user_msgs(request, chat_id, user_id):
+def user_msgs(request, chat_id, user_id, page=1):
     try:
+        start = (page - 1) * 50
+        end = page * 50
+
         create_posts_sync(chat_id=chat_id, user_id=user_id)
-        posts = Post.objects.filter(sender_id=user_id, chat_id=chat_id).order_by('-date')
+        posts = Post.objects.filter(sender_id=user_id, chat_id=chat_id).order_by('-date')[start:end]
+        if len(posts) < 50:
+            has_next = False
+        else:
+            has_next = True
+
+        if page > 1:
+            has_previous = True
+        else:
+            has_previous = False
         user = TelegramUser.objects.filter(telegram_id=user_id).first()
         return render(request, 'user_detail.html', {'posts': posts,
-                                                    'user': user})
+                                                    'user': user,
+                                                    'current_page': page,
+                                                    'next_page': page + 1 if has_next else None,
+                                                    'previous_page': page - 1 if has_previous else None,
+                                                    'user_id': user_id,
+                                                    'chat_id': chat_id})
     except Exception as e:
         print(e)
         return redirect('error')
