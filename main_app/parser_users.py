@@ -76,7 +76,10 @@ async def collect_users_by_chat_id(chat_id, page):
                     user,
                     file=os.path.join(settings.MEDIA_ROOT, 'img', 'users', f'{user.id}.jpg')
                 )
-                image_filename = f"img/users/{user.id}.jpg"
+                if not photo_path:
+                    image_filename = None
+                else:
+                    image_filename = f"img/users/{user.id}.jpg"
             except Exception as e:
                 print(f"⚠️ Не удалось скачать фото для пользователя {user.id}: {e}")
             created = await save_user_to_db(user, chat_id, image_filename)
