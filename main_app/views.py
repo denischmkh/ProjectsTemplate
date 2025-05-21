@@ -66,7 +66,7 @@ def group_users_info(request, chat_id, title, page=1):
 def user_msgs(request, chat_id, user_id):
     try:
         create_posts_sync(chat_id=chat_id, user_id=user_id)
-        posts = Post.objects.filter(sender_id=user_id, chat_id=chat_id).order_by('date')
+        posts = Post.objects.filter(sender_id=user_id, chat_id=chat_id).order_by('-date')
         user = TelegramUser.objects.filter(telegram_id=user_id).first()
         return render(request, 'user_detail.html', {'posts': posts,
                                                     'user': user})
