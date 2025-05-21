@@ -1,6 +1,7 @@
 import asyncio
 import os
 import time
+from datetime import datetime
 from pprint import pprint
 
 from asgiref.sync import sync_to_async, async_to_sync
@@ -59,9 +60,12 @@ def save_post(msg, chat_id):
     if isinstance(msg.media, MessageMediaPhoto):
         photo = f"photo_{msg.id}.jpg"
         # файл нужно сохранить отдельно через `await client.download_media(...)`
+    dt = datetime.fromisoformat(str(timezone.localtime(msg.date)))
 
+    # форматируем в красивый вид
+    formatted = dt.strftime("%d %B %Y %H:%M:%S")
     Post.objects.get_or_create(
-        date=str(timezone.localtime(msg.date)),
+        date=formatted,
         sender_id=msg.sender_id,
         chat_id=chat_id,
         text=text,
