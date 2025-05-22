@@ -132,8 +132,8 @@ def parse_index(request):
 def parse_group_info_full(request, chat_id):
     thread_posts = threading.Thread(target=create_posts_from_group_sync, args=(chat_id,))
     thread_posts.start()
+    thread_posts.join()  # ждём, пока первый поток закончит работу
 
-    # Запускаем create_users_sync в отдельном потоке
     thread_users = threading.Thread(target=create_users_sync, args=(chat_id,))
     thread_users.start()
     try:
