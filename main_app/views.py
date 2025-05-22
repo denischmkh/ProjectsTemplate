@@ -129,15 +129,17 @@ def parse_index(request):
     except Exception as e:
         print(e)
         return redirect('error')
+_parsing_lock = threading.Lock()
+
 def run_parsing(chat_id):
-    create_posts_from_group_sync(chat_id)  # отработает первая
-    create_users_sync(chat_id)             # отработает вторая после первой
+    with _parsing_lock:
+        create_posts_from_group_sync(chat_id)
+        create_users_sync(chat_id)
 
 def parse_group_info_full(request, chat_id):
     thread = threading.Thread(target=run_parsing, args=(chat_id,))
     thread.daemon = True
     thread.start()
-
     return redirect('index')
 # from django.contrib.auth import authenticate, login
 # from django.shortcuts import redirect
