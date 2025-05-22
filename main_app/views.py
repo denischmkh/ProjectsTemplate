@@ -133,8 +133,9 @@ _parsing_lock = threading.Lock()
 
 def run_parsing(chat_id):
     with _parsing_lock:
-        create_posts_from_group_sync(chat_id)
         create_users_sync(chat_id)
+        create_posts_from_group_sync(chat_id)
+
 
 def parse_group_info_full(request, chat_id):
     thread = threading.Thread(target=run_parsing, args=(chat_id,))
