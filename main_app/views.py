@@ -1,4 +1,6 @@
 import asyncio
+import threading
+import time
 import urllib
 from urllib.parse import unquote
 
@@ -116,12 +118,18 @@ def posts_index(request):
 
 
 def group_posts(request, chat_id, title, page=1):
-    create_posts_from_group_sync(chat_id=chat_id, page=page)
-    create_users_sync(chat_id=chat_id)
+    # Запуск create_users_sync в отдельном потоке
+    if page == 1 and not TelegramUser.objects.filter(chat_id=chat_id).exists():
+        create_users_sync(chat_id=chat_id)
+    # Запуск create_posts_from_group_sync в отдельном потоке
+    threading.Thread(target=create_posts_from_group_sync, args=(chat_id,), daemon=True).start()
+    time.sleep(5)
 
+
+    # Логика вывода постов, без ожидания фоновых задач
     start = (page - 1) * 100
     end = page * 100
-    posts = Post.objects.filter(chat_id=chat_id).order_by('-date')[start: end]  # или order_by('-id')
+    posts = Post.objects.filter(chat_id=chat_id).order_by('id')[start:end]
     posts = {post: TelegramUser.objects.filter(telegram_id=post.sender_id).first() for post in posts}
     has_next = len(posts) == 100
     has_previous = page > 1
