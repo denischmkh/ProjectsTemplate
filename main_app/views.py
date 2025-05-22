@@ -141,7 +141,7 @@ def posts_index(request):
             if group_link:
                 chat_id, title = join_and_get_info_sync(group_link)
                 safe_title = urllib.parse.quote(title, safe='')
-                url = reverse('group_posts', kwargs={'chat_id': chat_id, 'title': safe_title, 'page': 1})
+                url = reverse('parse_group_posts', kwargs={'chat_id': chat_id, 'title': safe_title, 'page': 1})
                 return redirect(url)
 
             # Если group_link пустой, просто снова показываем форму
@@ -154,9 +154,29 @@ def posts_index(request):
         return redirect('error')
 
 
-def group_posts(request, chat_id, title, page=1):
+def parse_group_posts(request, chat_id, title, page=1):
     if not Post.objects.filter(chat_id=chat_id).exists():
         create_posts_from_group_sync(chat_id=chat_id)
+    start = (page - 1) * 100
+    end = page * 100
+    posts = Post.objects.filter(chat_id=chat_id).order_by('id')[start:end]
+    posts = {post: TelegramUser.objects.filter(telegram_id=post.sender_id).first() for post in posts}
+    has_next = len(posts) == 100
+    has_previous = page > 1
+
+    title = unquote(title)
+    return render(request, 'posts_list.html', context={
+        'has_previous': has_previous,
+        'has_next': has_next,
+        'current_page': page,
+        'title': title,
+        'posts': posts,
+        'chat_id': chat_id,
+        'next_page': page + 1 if has_next else None,
+        'previous_page': page - 1 if has_previous else None,
+    })
+
+def get_group_posts(request, chat_id, title, page=1):
     start = (page - 1) * 100
     end = page * 100
     posts = Post.objects.filter(chat_id=chat_id).order_by('id')[start:end]

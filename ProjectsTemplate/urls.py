@@ -32,6 +32,7 @@ urlpatterns = [
     path('users/error', views.error_page, name='error'),
 
     path('posts/', views.posts_index, name='posts_index'),
-    path('posts/group/<int:chat_id>/<str:title>/<int:page>', views.group_posts, name='group_posts'),
+    path('posts/parse_group/<int:chat_id>/<str:title>/<int:page>', views.parse_group_posts, name='parse_group_posts'),
+    path('posts/group/<int:chat_id>/<str:title>/<int:page>', views.get_group_posts, name='get_group_posts'),
 ]
 
