@@ -117,5 +117,4 @@ def create_posts_sync(chat_id, user_id):
     return async_to_sync(collect_all_user_messages)(chat_id, user_id, 1000)
 
 def create_posts_from_group_sync(chat_id):
-
     return async_to_sync(collect_all_messages_by_chat_id)(chat_id)

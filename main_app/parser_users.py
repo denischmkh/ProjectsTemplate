@@ -44,52 +44,55 @@ def get_client():
     return TelegramClient('session_name1', api_id, api_hash)
 
 
-async def collect_users_by_chat_id(chat_id, page):
+async def collect_users_by_chat_id(chat_id):
     client = get_client()
     async with client:
         await client.start(phone)
         print("📡 Подключение к Telegram...")
 
         limit = 50
-        offset = (page - 1) * limit
+        offset = 0
         all_users = []
 
-        participants = await client(GetParticipantsRequest(
-            channel=chat_id,
-            filter=ChannelParticipantsSearch(''),
-            offset=offset,
-            limit=limit,
-            hash=0
-        ))
+        while True:
+            participants = await client(GetParticipantsRequest(
+                channel=chat_id,
+                filter=ChannelParticipantsSearch(''),
+                offset=offset,
+                limit=limit,
+                hash=0
+            ))
 
-        if not participants.users:
-            return
+            if not participants.users:
+                # Больше участников нет — выходим из цикла
+                break
 
-        all_users.extend(participants.users)
-        print(f"Загружено пользователей: {len(all_users)}")
+            all_users.extend(participants.users)
+            print(f"Загружено пользователей: {len(all_users)}")
 
-        for user in participants.users:
-            image_filename = None
+            for user in participants.users:
+                image_filename = None
 
-            try:
-                photo_path = await client.download_profile_photo(
-                    user,
-                    file=os.path.join(settings.MEDIA_ROOT, 'img', 'users', f'{user.id}.jpg')
-                )
-                if not photo_path:
-                    image_filename = None
+                try:
+                    photo_path = await client.download_profile_photo(
+                        user,
+                        file=os.path.join(settings.MEDIA_ROOT, 'img', 'users', f'{user.id}.jpg')
+                    )
+                    if photo_path:
+                        image_filename = f"img/users/{user.id}.jpg"
+                except Exception as e:
+                    print(f"⚠️ Не удалось скачать фото для пользователя {user.id}: {e}")
+
+                created = await save_user_to_db(user, chat_id, image_filename)
+                if created:
+                    print(f"✅ Пользователь {user.id} сохранён")
                 else:
-                    image_filename = f"img/users/{user.id}.jpg"
-            except Exception as e:
-                print(f"⚠️ Не удалось скачать фото для пользователя {user.id}: {e}")
-            created = await save_user_to_db(user, chat_id, image_filename)
-            if created:
-                print(f"✅ Пользователь {user.id} сохранён")
-            else:
-                print(f"⚠️ Пользователь {user.id} уже есть")
+                    print(f"⚠️ Пользователь {user.id} уже есть")
+
+            offset += limit  # увеличиваем смещение для следующей страницы
 
         print(f"🎉 Обработка пользователей завершена. Всего: {len(all_users)}")
 
 
-def create_users_sync(chat_id, page=1):
-    return async_to_sync(collect_users_by_chat_id)(chat_id, page)
+def create_users_sync(chat_id):
+    return async_to_sync(collect_users_by_chat_id)(chat_id)

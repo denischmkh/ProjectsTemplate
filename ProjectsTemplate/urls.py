@@ -24,8 +24,10 @@ from main_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.index, name='index'),
     path('users/', views.users_index, name='users_index'),
-    path('users/group/<int:chat_id>/<str:title>/<int:page>', views.group_users_info, name='group_info'),
+    path('users/parse_group/<int:chat_id>/<str:title>/<int:page>', views.parse_group_users_info, name='parse_group_info'),
+    path('users/group/<int:chat_id>/<str:title>/<int:page>', views.get_group_users_info, name='get_group_info'),
     path('users/profile/<int:chat_id>/<int:user_id>/<int:page>', views.user_msgs, name='user_msgs'),
     path('users/error', views.error_page, name='error'),
 

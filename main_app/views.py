@@ -2,11 +2,12 @@ import asyncio
 import threading
 import time
 import urllib
+from pprint import pprint
 from urllib.parse import unquote
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from django.urls import reverse
 
 from .models import Post, TelegramUser
@@ -14,6 +15,16 @@ from .models import Post, TelegramUser
 from .forms import LoginForm, SignupForm  # ✅ лучше и понятнее
 from .parser_posts import join_and_get_info_sync, create_posts_sync, create_posts_from_group_sync
 from .parser_users import create_users_sync
+from .parse_groups import get_group_titles
+
+async def index(request):
+    # ORM запрос обернем в sync_to_async
+    chat_ids = await sync_to_async(list)(TelegramUser.objects.values_list('chat_id', flat=True).distinct())
+
+    groups = await get_group_titles(chat_ids)
+
+    return render(request, 'index.html', {'groups': groups})
+
 
 def users_index(request):
     try:
@@ -22,7 +33,7 @@ def users_index(request):
             if group_link:
                 chat_id, title = join_and_get_info_sync(group_link)
                 safe_title = urllib.parse.quote(title, safe='')
-                url = reverse('group_info', kwargs={'chat_id': chat_id, 'title': safe_title, 'page': 1})
+                url = reverse('parse_group_info', kwargs={'chat_id': chat_id, 'title': safe_title, 'page': 1})
                 return redirect(url)
 
             # Если group_link пустой, просто снова показываем форму
@@ -35,11 +46,38 @@ def users_index(request):
         return redirect('error')
 
 
-def group_users_info(request, chat_id, title, page=1):
+def parse_group_users_info(request, chat_id, title, page=1):
     try:
         start = (page - 1) * 50
         end = page * 50
-        create_users_sync(chat_id=chat_id, page=page)
+        if not TelegramUser.objects.filter(chat_id=chat_id).exists():
+            create_users_sync(chat_id=chat_id)
+        users = TelegramUser.objects.filter(chat_id=chat_id)[start:end]
+        if len(users) < 50:
+            has_next = False
+        else:
+            has_next = True
+
+        if page > 1:
+            has_previous = True
+        else:
+            has_previous = False
+        title = unquote(title)
+        return render(request, 'users_list.html', context={
+            'users': users,
+            'current_page': page,
+            'next_page': page + 1 if has_next else None,
+            'previous_page': page - 1 if has_previous else None,
+            'chat_id': chat_id,
+            'title': title})
+    except Exception as e:
+        print(e)
+        return redirect('error')
+
+def get_group_users_info(request, chat_id, title, page=1):
+    try:
+        start = (page - 1) * 50
+        end = page * 50
         users = TelegramUser.objects.filter(chat_id=chat_id)[start:end]
         if len(users) < 50:
             has_next = False
@@ -70,8 +108,7 @@ def user_msgs(request, chat_id, user_id, page=1):
         start = (page - 1) * 50
         end = page * 50
 
-        create_posts_sync(chat_id=chat_id, user_id=user_id)
-        posts = Post.objects.filter(sender_id=user_id, chat_id=chat_id).order_by('-date')[start:end]
+        posts = Post.objects.filter(sender_id=user_id, chat_id=chat_id).order_by('id')[start:end]
         if len(posts) < 50:
             has_next = False
         else:
@@ -118,15 +155,8 @@ def posts_index(request):
 
 
 def group_posts(request, chat_id, title, page=1):
-    # Запуск create_users_sync в отдельном потоке
-    if page == 1 and not TelegramUser.objects.filter(chat_id=chat_id).exists():
-        create_users_sync(chat_id=chat_id)
-    # Запуск create_posts_from_group_sync в отдельном потоке
-    threading.Thread(target=create_posts_from_group_sync, args=(chat_id,), daemon=True).start()
-    time.sleep(5)
-
-
-    # Логика вывода постов, без ожидания фоновых задач
+    if not Post.objects.filter(chat_id=chat_id).exists():
+        create_posts_from_group_sync(chat_id=chat_id)
     start = (page - 1) * 100
     end = page * 100
     posts = Post.objects.filter(chat_id=chat_id).order_by('id')[start:end]
