@@ -25,14 +25,13 @@ from main_app import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('users/', views.users_index, name='users_index'),
-    path('users/parse_group/<int:chat_id>/<str:title>/<int:page>', views.parse_group_users_info, name='parse_group_info'),
     path('users/group/<int:chat_id>/<str:title>/<int:page>', views.get_group_users_info, name='get_group_info'),
     path('users/profile/<int:chat_id>/<int:user_id>/<int:page>', views.user_msgs, name='user_msgs'),
     path('users/error', views.error_page, name='error'),
 
-    path('posts/', views.posts_index, name='posts_index'),
-    path('posts/parse_group/<int:chat_id>/<str:title>/<int:page>', views.parse_group_posts, name='parse_group_posts'),
     path('posts/group/<int:chat_id>/<str:title>/<int:page>', views.get_group_posts, name='get_group_posts'),
+
+    path('parse/', views.parse_index, name='parse_index'),
+    path('parse/parse_group/<int:chat_id>/<str:title>/<int:page>', views.parse_group_info_full, name='parse_group_info_full'),
 ]
 
