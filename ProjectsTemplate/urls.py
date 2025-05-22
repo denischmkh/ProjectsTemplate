@@ -32,6 +32,6 @@ urlpatterns = [
     path('posts/group/<int:chat_id>/<str:title>/<int:page>', views.get_group_posts, name='get_group_posts'),
 
     path('parse/', views.parse_index, name='parse_index'),
-    path('parse/parse_group/<int:chat_id>/<str:title>/<int:page>', views.parse_group_info_full, name='parse_group_info_full'),
+    path('parse/parse_group/<int:chat_id>', views.parse_group_info_full, name='parse_group_info_full'),
 ]
 

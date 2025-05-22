@@ -118,8 +118,7 @@ def parse_index(request):
             group_link = request.POST.get('group_link')
             if group_link:
                 chat_id, title = join_and_get_info_sync(group_link)
-                safe_title = urllib.parse.quote(title, safe='')
-                url = reverse('parse_group_info_full', kwargs={'chat_id': chat_id, 'title': safe_title})
+                url = reverse('parse_group_info_full', kwargs={'chat_id': chat_id})
                 return redirect(url)
 
             # Если group_link пустой, просто снова показываем форму
@@ -130,7 +129,7 @@ def parse_index(request):
     except Exception as e:
         print(e)
         return redirect('error')
-def parse_group_info_full(request, chat_id, title):
+def parse_group_info_full(request, chat_id):
     create_posts_from_group_sync(chat_id=chat_id)
     create_users_sync(chat_id=chat_id)
     try:
