@@ -32,26 +32,27 @@ async def index(request):
 
 def get_group_users_info(request, chat_id, title, page=1):
     try:
+        page = int(page)
+        chat_id = int(chat_id)
+
         start = (page - 1) * 50
         end = page * 50
-        users = TelegramUser.objects.filter(chat_id=chat_id)[start:end]
-        if len(users) < 50:
-            has_next = False
-        else:
-            has_next = True
 
-        if page > 1:
-            has_previous = True
-        else:
-            has_previous = False
+        users = TelegramUser.objects.filter(chat_id=chat_id)[start:end]
+
+        has_next = len(users) == 50
+        has_previous = page > 1
+
         title = unquote(title)
+
         return render(request, 'users_list.html', context={
             'users': users,
             'current_page': page,
             'next_page': page + 1 if has_next else None,
             'previous_page': page - 1 if has_previous else None,
             'chat_id': chat_id,
-            'title': title})
+            'title': title
+        })
     except Exception as e:
         print(e)
         return redirect('error')
@@ -61,27 +62,29 @@ def get_group_users_info(request, chat_id, title, page=1):
 
 def user_msgs(request, chat_id, user_id, page=1):
     try:
+        page = int(page)
+        chat_id = int(chat_id)
+        user_id = int(user_id)
+
         start = (page - 1) * 50
         end = page * 50
 
         posts = Post.objects.filter(sender_id=user_id, chat_id=chat_id).order_by('id')[start:end]
-        if len(posts) < 50:
-            has_next = False
-        else:
-            has_next = True
 
-        if page > 1:
-            has_previous = True
-        else:
-            has_previous = False
+        has_next = len(posts) == 50
+        has_previous = page > 1
+
         user = TelegramUser.objects.filter(telegram_id=user_id).first()
-        return render(request, 'user_detail.html', {'posts': posts,
-                                                    'user': user,
-                                                    'current_page': page,
-                                                    'next_page': page + 1 if has_next else None,
-                                                    'previous_page': page - 1 if has_previous else None,
-                                                    'user_id': user_id,
-                                                    'chat_id': chat_id})
+
+        return render(request, 'user_detail.html', {
+            'posts': posts,
+            'user': user,
+            'current_page': page,
+            'next_page': page + 1 if has_next else None,
+            'previous_page': page - 1 if has_previous else None,
+            'user_id': user_id,
+            'chat_id': chat_id
+        })
     except Exception as e:
         print(e)
         return redirect('error')
