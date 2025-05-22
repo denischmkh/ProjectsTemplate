@@ -64,14 +64,17 @@ def save_post(msg, chat_id, target_user_id):
 
     # форматируем в красивый вид
     formatted = dt.strftime("%d %B %Y %H:%M:%S")
-    Post.objects.get_or_create(
-        date=formatted,
-        sender_id=target_user_id,
-        chat_id=chat_id,
-        text=text,
-        photo=photo,
-        comment_count="Not Available"
-    )
+    try:
+        Post.objects.get_or_create(
+            date=formatted,
+            sender_id=target_user_id,
+            chat_id=chat_id,
+            text=text,
+            photo=photo,
+            comment_count="Not Available"
+        )
+    except Exception:
+        print('skip')
 
 async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
     async with TelegramClient('session_name1', api_id, api_hash) as client:
