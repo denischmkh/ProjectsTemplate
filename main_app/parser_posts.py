@@ -30,7 +30,7 @@ loop = asyncio.get_event_loop()
 
 
 async def join_group_and_get_info(group_link_or_username):
-    async with TelegramClient('session_name1', api_id, api_hash) as client:
+    async with TelegramClient('session_name0', api_id, api_hash) as client:
         await client.start(phone)
 
         try:
@@ -89,7 +89,7 @@ async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
         print(f"✅ Все сообщения от пользователя {target_user_id} сохранены.")
 
 async def collect_all_messages_by_chat_id(chat_id):
-    client = TelegramClient('session_name1', api_id, api_hash)
+    client = TelegramClient('session_name2', api_id, api_hash)
 
     async with client:
         print(f"📡 Подключение к Telegram-каналу {chat_id}...")
