@@ -18,20 +18,22 @@ import os
 import sys
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
+
 sys.path.append(os.path.join(os.getcwd(), '..'))
 from main_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
-    path('users/group/<int:chat_id>/<str:title>/<int:page>', views.get_group_users_info, name='get_group_info'),
-    path('users/profile/<int:chat_id>/<int:user_id>/<int:page>', views.user_msgs, name='user_msgs'),
+
+    # Разрешаем отрицательные chat_id через re_path
+    re_path(r'^users/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_users_info, name='get_group_info'),
+    re_path(r'^users/profile/(?P<chat_id>-?\d+)/(?P<user_id>\d+)/(?P<page>\d+)$', views.user_msgs, name='user_msgs'),
+    re_path(r'^posts/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_posts, name='get_group_posts'),
+
     path('users/error', views.error_page, name='error'),
-
-    path('posts/group/<int:chat_id>/<str:title>/<int:page>', views.get_group_posts, name='get_group_posts'),
-
     path('parse/', views.parse_index, name='parse_index'),
-    path('parse/parse_group/<int:chat_id>', views.parse_group_info_full, name='parse_group_info_full'),
+    re_path(r'^parse/parse_group/(?P<chat_id>-?\d+)$', views.parse_group_info_full, name='parse_group_info_full'),
 ]
 
