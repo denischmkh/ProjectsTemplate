@@ -95,6 +95,9 @@ def error_page(request):
 
 
 def get_group_posts(request, chat_id, title, page=1):
+    page = int(page)          # <-- добавь это
+    chat_id = int(chat_id)    # тоже рекомендую явно привести chat_id к int, особенно если с минусами
+
     start = (page - 1) * 100
     end = page * 100
     posts = Post.objects.filter(chat_id=chat_id).order_by('id')[start:end]
