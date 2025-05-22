@@ -64,17 +64,15 @@ def save_post(msg, chat_id, target_user_id):
 
     # форматируем в красивый вид
     formatted = dt.strftime("%d %B %Y %H:%M:%S")
-    try:
-        Post.objects.get_or_create(
-            date=formatted,
-            sender_id=target_user_id,
-            chat_id=chat_id,
-            text=text,
-            photo=photo,
-            comment_count="Not Available"
-        )
-    except Exception:
-        print('skip')
+
+    Post.objects.get_or_create(
+        date=formatted,
+        sender_id=target_user_id,
+        chat_id=chat_id,
+        text=text,
+        photo=photo,
+        comment_count="Not Available"
+    )
 
 async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
     async with TelegramClient('session_name1', api_id, api_hash) as client:
@@ -91,28 +89,25 @@ async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
         print(f"✅ Все сообщения от пользователя {target_user_id} сохранены.")
 
 async def collect_all_messages_by_chat_id(chat_id):
-    try:
-        client = TelegramClient('session_name1', api_id, api_hash)
+    client = TelegramClient('session_name1', api_id, api_hash)
 
-        async with client:
-            print(f"📡 Подключение к Telegram-каналу {chat_id}...")
+    async with client:
+        print(f"📡 Подключение к Telegram-каналу {chat_id}...")
 
-            count = 0
-            async for msg in client.iter_messages(PeerChannel(chat_id), reverse=False, limit=4000):
-                if not msg.message:
-                    continue
+        count = 0
+        async for msg in client.iter_messages(PeerChannel(chat_id), reverse=False, limit=4000):
+            if not msg.message:
+                continue
 
-                sender_id = getattr(msg.sender_id, 'user_id', msg.sender_id)
-                if sender_id is None:
-                    print(f"❌ Пропущено сообщение #{msg.id} — нет sender_id")
-                    continue
-                await save_post(msg, chat_id, sender_id)
-                print(f"📩 #{msg.id} — {msg.message[:50]}")
-                count += 1
+            sender_id = getattr(msg.sender_id, 'user_id', msg.sender_id)
+            if sender_id is None:
+                print(f"❌ Пропущено сообщение #{msg.id} — нет sender_id")
+                continue
+            await save_post(msg, chat_id, sender_id)
+            print(f"📩 #{msg.id} — {msg.message[:50]}")
+            count += 1
 
-            print(f"✅ Всего сохранено сообщений: {count}")
-    except Exception:
-        print('here')
+        print(f"✅ Всего сохранено сообщений: {count}")
 
 
 def join_and_get_info_sync(group_link_or_username):
