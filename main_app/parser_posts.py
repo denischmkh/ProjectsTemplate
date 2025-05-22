@@ -35,7 +35,8 @@ async def join_group_and_get_info(group_link_or_username):
 
         try:
             # Пробуем вступить в группу по username/link
-            await client(JoinChannelRequest(group_link_or_username))
+            entity = await client.get_input_entity(group_link_or_username)
+            await client(JoinChannelRequest(entity))
             print(f"✅ Вступили в группу {group_link_or_username}")
         except UserAlreadyParticipantError:
             print("Уже состоим в группе")
