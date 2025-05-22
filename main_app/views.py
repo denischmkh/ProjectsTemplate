@@ -121,6 +121,7 @@ def parse_index(request):
             try:
                 if group_link:
                     chat_id, title = join_and_get_info_sync(group_link)
+                    print(chat_id)
                     url = reverse('parse_group_info_full', kwargs={'chat_id': chat_id})
                     return redirect(url)
 
@@ -143,6 +144,7 @@ def run_parsing(chat_id):
 
 
 def parse_group_info_full(request, chat_id):
+    chat_id = int(f'-100{chat_id}')
     thread = threading.Thread(target=run_parsing, args=(chat_id,))
     thread.daemon = True
     thread.start()

@@ -6,8 +6,8 @@ from pprint import pprint
 
 from asgiref.sync import sync_to_async, async_to_sync
 from telethon.sync import TelegramClient
-from telethon.tl.functions.messages import GetDialogsRequest
-from telethon.tl.types import InputPeerEmpty, MessageMediaPhoto
+from telethon.tl.functions.messages import GetDialogsRequest, ImportChatInviteRequest
+from telethon.tl.types import InputPeerEmpty, MessageMediaPhoto, User
 from telethon.tl.functions.messages import GetHistoryRequest
 from .models import Post  # Замените на правильный путь к вашей модели
 from django.utils import timezone
@@ -30,28 +30,46 @@ loop = asyncio.get_event_loop()
 
 
 async def join_group_and_get_info(group_link_or_username):
+    print(group_link_or_username)
+    print(group_link_or_username)
+    print(group_link_or_username)
+    print(group_link_or_username)
     async with TelegramClient('session_name0', api_id, api_hash) as client:
         await client.start(phone)
 
         try:
-            # Пробуем вступить в группу по username/link
-            entity = await client.get_input_entity(group_link_or_username)
-            await client(JoinChannelRequest(entity))
-            print(f"✅ Вступили в группу {group_link_or_username}")
+            # Если это инвайт-ссылка (joinchat/...), попробуем сначала "импортировать" приглашение
+            if 'joinchat/' in group_link_or_username:
+                invite_hash = group_link_or_username.split('joinchat/')[-1]
+                await client(ImportChatInviteRequest(invite_hash))
+                print(f"✅ Присоединились по инвайт-ссылке {group_link_or_username}")
+            else:
+                # Для обычного username или ссылки, просто вступаем
+                entity = await client.get_input_entity(group_link_or_username)
+                await client(JoinChannelRequest(entity))
+                print(f"✅ Вступили в группу {group_link_or_username}")
         except UserAlreadyParticipantError:
-            print("Уже состоим в группе")
+            print("✅ Уже состоим в группе")
         except FloodWaitError as e:
             print(f"Ждем {e.seconds} секунд из-за FloodWait")
             await asyncio.sleep(e.seconds)
         except Exception as e:
             print(f"Ошибка при вступлении: {e}")
-            # Можно решать, дальше ли пробовать
+            return None, None  # Не продолжаем, если ошибка
 
-        # Получаем объект чата
-        chat = await client.get_entity(group_link_or_username)
+        try:
+            # Обновляем сущность
+            chat = await client.get_entity(group_link_or_username)
 
-        # Возвращаем id и название
-        return chat.id, chat.title
+            # Проверка типа: Chat (basic groups), Channel (supergroups/channels), но не User
+            if isinstance(chat, User):
+                print("❌ Это пользователь, а не группа или канал")
+                return None, None
+
+            return chat.id, chat.title
+        except Exception as e:
+            print(f"Ошибка при получении информации о чате: {e}")
+            return None, None
 
 @sync_to_async
 def save_post(msg, chat_id, target_user_id):

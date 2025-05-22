@@ -6,7 +6,7 @@ from pathlib import Path
 from asgiref.sync import sync_to_async, async_to_sync
 from telethon import TelegramClient
 from telethon.tl.functions.channels import GetParticipantsRequest
-from telethon.tl.types import ChannelParticipantsSearch
+from telethon.tl.types import ChannelParticipantsSearch, Channel
 from django.utils import timezone
 from .models import TelegramUser  # замените на правильный импорт
 BASE_DIR = Path(__file__).resolve().parent
@@ -50,13 +50,27 @@ async def collect_users_by_chat_id(chat_id):
         await client.start(phone)
         print("📡 Подключение к Telegram...")
 
+        # Получаем сущность и проверяем, что это именно группа или канал
+        try:
+            entity = await client.get_entity(chat_id)
+        except Exception as e:
+            print(f"❌ Не удалось получить сущность по chat_id: {e}")
+            return
+
+        if not isinstance(entity, Channel):
+            print("❌ Это не группа/канал, а, скорее всего, пользователь. Остановка.")
+            return
+
+        # Получаем InputChannel
+        input_channel = await client.get_input_entity(entity)
+
         limit = 50
         offset = 0
         all_users = []
 
         while True:
             participants = await client(GetParticipantsRequest(
-                channel=chat_id,
+                channel=input_channel,
                 filter=ChannelParticipantsSearch(''),
                 offset=offset,
                 limit=limit,
@@ -64,7 +78,6 @@ async def collect_users_by_chat_id(chat_id):
             ))
 
             if not participants.users:
-                # Больше участников нет — выходим из цикла
                 break
 
             all_users.extend(participants.users)
@@ -72,7 +85,6 @@ async def collect_users_by_chat_id(chat_id):
 
             for user in participants.users:
                 image_filename = None
-
                 try:
                     photo_path = await client.download_profile_photo(
                         user,
@@ -89,7 +101,7 @@ async def collect_users_by_chat_id(chat_id):
                 else:
                     print(f"⚠️ Пользователь {user.id} уже есть")
 
-            offset += limit  # увеличиваем смещение для следующей страницы
+            offset += limit
 
         print(f"🎉 Обработка пользователей завершена. Всего: {len(all_users)}")
 
