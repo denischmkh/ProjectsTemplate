@@ -129,13 +129,15 @@ def parse_index(request):
     except Exception as e:
         print(e)
         return redirect('error')
-def parse_group_info_full(request, chat_id):
-    thread_posts = threading.Thread(target=create_posts_from_group_sync, args=(chat_id,))
-    thread_posts.start()
-    thread_posts.join()  # ждём, пока первый поток закончит работу
+def run_parsing(chat_id):
+    create_posts_from_group_sync(chat_id)
+    create_users_sync(chat_id)
 
-    thread_users = threading.Thread(target=create_users_sync, args=(chat_id,))
-    thread_users.start()
+def parse_group_info_full(request, chat_id):
+    thread = threading.Thread(target=run_parsing, args=(chat_id,))
+    thread.daemon = True  # поток не будет мешать завершению процесса
+    thread.start()
+
     try:
         return redirect('index')
     except Exception as e:
