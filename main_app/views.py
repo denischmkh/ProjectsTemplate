@@ -116,13 +116,16 @@ def parse_index(request):
     try:
         if request.method == 'POST':
             group_link = request.POST.get('group_link')
-            if group_link:
-                chat_id, title = join_and_get_info_sync(group_link)
-                url = reverse('parse_group_info_full', kwargs={'chat_id': chat_id})
-                return redirect(url)
+            try:
+                if group_link:
+                    chat_id, title = join_and_get_info_sync(group_link)
+                    url = reverse('parse_group_info_full', kwargs={'chat_id': chat_id})
+                    return redirect(url)
 
-            # Если group_link пустой, просто снова показываем форму
-            return render(request, 'parse_index.html')
+                # Если group_link пустой, просто снова показываем форму
+                return render(request, 'parse_index.html')
+            except Exception:
+                return redirect('error')
 
         # Для GET запроса просто показываем форму (input)
         return render(request, 'parse_index.html')
