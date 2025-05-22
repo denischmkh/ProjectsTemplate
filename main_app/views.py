@@ -20,8 +20,10 @@ from .parse_groups import get_group_titles
 async def index(request):
     # ORM запрос обернем в sync_to_async
     chat_ids = await sync_to_async(list)(TelegramUser.objects.values_list('chat_id', flat=True).distinct())
-
-    groups = await get_group_titles(chat_ids)
+    try:
+        groups = await get_group_titles(chat_ids)
+    except Exception:
+        groups = {}
 
     return render(request, 'index.html', {'groups': groups})
 
