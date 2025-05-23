@@ -100,11 +100,14 @@ async def collect_users_by_chat_id(chat_id):
                 last_seen = None
 
                 if isinstance(status, UserStatusOnline):
-                    last_seen = timezone.now()
+                    last_seen_dt = timezone.now()
+                    last_seen = last_seen_dt.strftime("%d %B %H:%M")
                 elif isinstance(status, UserStatusOffline):
-                    last_seen = status.was_online  # datetime
+                    last_seen_dt = status.was_online
+                    if last_seen_dt:
+                        last_seen = last_seen_dt.strftime("%d %B %H:%M")
                 elif status is not None:
-                    # Для случаев UserStatusRecently, UserStatusLastWeek и др.
+                    # Например: recently, last_week, last_month
                     last_seen = status.__class__.__name__.replace('UserStatus', '').lower()
                 else:
                     last_seen = None
