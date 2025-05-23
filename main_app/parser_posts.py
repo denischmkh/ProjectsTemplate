@@ -72,7 +72,7 @@ async def join_group_and_get_info(group_link_or_username):
             return None, None
 
 @sync_to_async
-def save_post(msg, chat_id, target_user_id):
+def save_post(msg, chat_id, target_user_id, views, reactions):
     text = msg.message.replace("\n", " ").replace("\r", "") if msg.message else None
 
     photo = "No photo"
@@ -90,7 +90,9 @@ def save_post(msg, chat_id, target_user_id):
         chat_id=chat_id,
         text=text,
         photo=photo,
-        comment_count="Not Available"
+        comment_count="Not Available",
+        views=views,
+        reactions=reactions
     )
 
 async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
@@ -101,9 +103,26 @@ async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
             if not msg.message:
                 continue
 
-            print(f"📩 Найдено сообщение: {msg.id} — {msg.message}")
+            # 👁 Получаем количество просмотров
+            views = msg.views or 0
 
-            await save_post(msg, chat_id, target_user_id)
+            # 💟 Получаем реакции
+            reactions = {}
+            if msg.reactions:
+                for result in msg.reactions.results:
+                    emoji = getattr(result.reaction, 'emoticon', str(result.reaction))
+                    reactions[emoji] = result.count
+
+            print(f"📩 #{msg.id} — {msg.message[:50]} | 👁 {views} | ❤️ {reactions}")
+
+            # 💾 Сохраняем сообщение с дополнительными полями
+            await save_post(
+                msg,
+                chat_id,
+                target_user_id,
+                views,
+                reactions
+            )
 
         print(f"✅ Все сообщения от пользователя {target_user_id} сохранены.")
 
@@ -122,8 +141,20 @@ async def collect_all_messages_by_chat_id(chat_id):
             if sender_id is None:
                 print(f"❌ Пропущено сообщение #{msg.id} — нет sender_id")
                 continue
-            await save_post(msg, chat_id, sender_id)
-            print(f"📩 #{msg.id} — {msg.message[:50]}")
+
+            # 📊 Получение просмотров и реакций
+            views = msg.views or 0
+
+            reactions = {}
+            if msg.reactions:
+                for reaction_result in msg.reactions.results:
+                    emoji = getattr(reaction_result.reaction, 'emoticon', str(reaction_result.reaction))
+                    reactions[emoji] = reaction_result.count
+
+            # 🧠 Сохраняем пост с доп. данными
+            await save_post(msg, chat_id, sender_id, views, reactions)
+
+            print(f"📩 #{msg.id} — {msg.message[:50]} 👁 {views} 🔥 {reactions}")
             count += 1
 
         print(f"✅ Всего сохранено сообщений: {count}")

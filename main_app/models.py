@@ -8,6 +8,9 @@ class Post(models.Model):
     text = models.TextField(null=True)
     photo = models.CharField(null=True)
     comment_count = models.CharField(null=True)
+    views = models.IntegerField(null=True)
+    reactions = models.IntegerField(null=True)
+
 
 class TelegramUser(models.Model):
     telegram_id = models.BigIntegerField()
