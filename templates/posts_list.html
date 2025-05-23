@@ -13,95 +13,16 @@
     </li>
 
     <li class="nav-item">
-        <a href="/" class="nav-link">
-            <i class="ph-house"></i>
-            <span>
-                Dashboard
-            </span>
-        </a>
-    </li>
-
-    <li class="nav-item" onclick="location.href='/projects/active/'" style="cursor: pointer;">
-        <a href="/projects/active/" class="nav-link">
-            <i class="ph-article"></i>
-            <span>Projects</span>
-        </a>
-        <ul class="nav-group-sub collapse ">
-            <li class="nav-item">
-                <a href="/projects/active/" class="nav-link">
-                    <i class="ph-person-simple-run"></i>
-                    Active
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/projects/closed/" class="nav-link">
-                    <i class="ph-check-square"></i>
-                    Closed
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/projects/archive/" class="nav-link">
-                    <i class="ph-archive"></i>
-                    Archive
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/projects/all/" class="nav-link">
-                    <i class="ph-text-align-justify"></i>
-                    All
-                </a>
-            </li>
-        </ul>
-    </li>
-
-    <li class="nav-item" onclick="location.href='/folders/'" style="cursor: pointer;">
-        <a href="/folders/" class="nav-link">
-            <i class="ph-folder"></i>
-            <span>Folders</span>
-        </a>
-        <ul class="nav-group-sub collapse ">
-            <li class="nav-item">
-                <a href="/folders/" class="nav-link">
-                    <i class="ph-folder"></i>
-                    All
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="/folders/archive/" class="nav-link">
-                    <i class="ph-archive"></i>
-                    Archive
-                </a>
-            </li>
-        </ul>
-    </li>
-
-
-
-    <li class="nav-item">
-        <a href="/clients/" class="nav-link">
-            <i class="ph-chalkboard-teacher"></i>
-            <span>Clients</span>
+        <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}" class="nav-link">
+            <i class="ph-user"></i>
+            <span>Users</span>
         </a>
     </li>
 
     <li class="nav-item">
-        <a href="/tracker/" class="nav-link" tabindex="-1" aria-disabled="true">
-            <i class="ph-timer"></i>
-            <span>Tracker</span>
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a href="/reports/all/" class="nav-link">
-            <i class="ph-file-text"></i>
-            <span>Reports</span>
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a href="/tags/" class="nav-link">
-            <i class="ph-tag"></i>
-            <span>Tags</span>
+        <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}" class="nav-link">
+            <i class="ph-note"></i>
+            <span>Posts</span>
         </a>
     </li>
 
