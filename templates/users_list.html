@@ -52,7 +52,8 @@
                 </tr>
             </thead>
             <tbody>
-                {% for user in users %}
+                {% for key, value in users.items %}
+                {% with user=value.0 message_count=value.1 %}
                     <tr>
                         <!-- Name with Profile Link -->
                         <td style="white-space: nowrap;">
@@ -90,21 +91,13 @@
                             {{ user.last_name|default:"-" }}
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
-                            {% if user.phone %}
-                                +{{ user.phone }}
-                            {% else %}
-                                -
-                            {% endif %}
+                            {{ message_count }}
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
                             {{ user.last_seen }}
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
-                            {% if user.phone %}
-                                +{{ user.phone }}
-                            {% else %}
-                                -
-                            {% endif %}
+                            1
                         </td>
                         <td class="text-center">
                             {% if user.is_bot %}
@@ -148,6 +141,7 @@
                     <tr>
                         <td colspan="12" class="text-center">No items available</td>
                     </tr>
+                {% endwith %}
                 {% endfor %}
 
             </tbody>

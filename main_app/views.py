@@ -37,14 +37,18 @@ def get_group_users_info(request, chat_id, title, page=1):
         end = page * 50
 
         users = TelegramUser.objects.filter(chat_id=chat_id)[start:end]
-
+        users_dict = {}
+        r = 1
+        for user in users:
+            users_dict[r] = (user, len(Post.objects.filter(chat_id=chat_id, sender_id=user.telegram_id)))
+            r += 1
         has_next = len(users) == 50
         has_previous = page > 1
 
         title = unquote(title)
 
         return render(request, 'users_list.html', context={
-            'users': users,
+            'users': users_dict,
             'current_page': page,
             'next_page': page + 1 if has_next else None,
             'previous_page': page - 1 if has_previous else None,
