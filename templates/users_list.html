@@ -98,7 +98,7 @@
                             {% endif %}
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
-                            {{ user.last_seen }}
+                            {{ user.last_seen|default_if_none:"-" }}
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
                             {{ message_count }}
