@@ -6,7 +6,7 @@ from pathlib import Path
 from asgiref.sync import sync_to_async, async_to_sync
 from telethon import TelegramClient
 from telethon.tl.functions.channels import GetParticipantsRequest
-from telethon.tl.types import ChannelParticipantsSearch, Channel
+from telethon.tl.types import ChannelParticipantsSearch, Channel, UserStatusOnline, UserStatusOffline
 from django.utils import timezone
 from .models import TelegramUser  # замените на правильный импорт
 BASE_DIR = Path(__file__).resolve().parent
@@ -19,7 +19,7 @@ phone = '+380999491488'
 
 
 @sync_to_async
-def save_user_to_db(user, chat_id, image_filename=None):
+def save_user_to_db(user, chat_id, image_filename, last_seen):
     obj, created = TelegramUser.objects.update_or_create(
         telegram_id=user.id,
         chat_id=chat_id,
@@ -34,7 +34,8 @@ def save_user_to_db(user, chat_id, image_filename=None):
             'is_scam': getattr(user, 'scam', None),
             'is_premium': getattr(user, 'premium', None),
             'scraped_at': timezone.now(),
-            'image': image_filename
+            'image': image_filename,
+            'last_seen': last_seen
         }
     )
     return created
@@ -95,7 +96,20 @@ async def collect_users_by_chat_id(chat_id):
                 except Exception as e:
                     print(f"⚠️ Не удалось скачать фото для пользователя {user.id}: {e}")
 
-                created = await save_user_to_db(user, chat_id, image_filename)
+                status = user.status
+                last_seen = None
+
+                if isinstance(status, UserStatusOnline):
+                    last_seen = timezone.now()
+                elif isinstance(status, UserStatusOffline):
+                    last_seen = status.was_online  # datetime
+                elif status is not None:
+                    # Для случаев UserStatusRecently, UserStatusLastWeek и др.
+                    last_seen = status.__class__.__name__.replace('UserStatus', '').lower()
+                else:
+                    last_seen = None
+
+                created = await save_user_to_db(user, chat_id, image_filename, last_seen)
                 if created:
                     print(f"✅ Пользователь {user.id} сохранён")
                 else:

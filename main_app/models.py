@@ -26,3 +26,4 @@ class TelegramUser(models.Model):
     is_premium = models.BooleanField(null=True, blank=True)
 
     scraped_at = models.DateTimeField(auto_now_add=True)
+    last_seen = models.DateTimeField(null=True, blank=True)
