@@ -9,20 +9,14 @@
 
                         {% for chat_id, title in groups.items %}
                           <div class="grid-item">
-                            <div class="d-flex flex-column align-items-center text-decoration-none text-dark text-center">
+                            <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}" class="d-flex flex-column align-items-center text-decoration-none text-dark text-center w-100 h-100">
                               <div class="d-flex justify-content-center align-items-center rounded-circle bg-light shadow-sm p-3">
                                 <i class="ph ph-chat fs-1 text-secondary"></i>
                               </div>
                               <div class="mt-2 fw-semibold text-break">
-                                {{ title|default:"Без названия" }}<br>
-                                <small>Chat ID: {{ chat_id }}</small>
+                                {{ title|default:"Без названия" }}
                               </div>
-
-                              <div class="mt-2 d-flex gap-2">
-                                <a href="{% url 'get_group_info' chat_id=chat_id title=title page=1 %}" class="btn btn-sm btn-outline-primary">Users</a>
-                                <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}" class="btn btn-sm btn-outline-secondary">Posts</a>
-                              </div>
-                            </div>
+                            </a>
                           </div>
                         {% empty %}
                           <p>Группы не найдены</p>

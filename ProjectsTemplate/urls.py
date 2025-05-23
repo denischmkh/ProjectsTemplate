@@ -28,7 +28,7 @@ urlpatterns = [
     path('', views.index, name='index'),
 
     # Разрешаем отрицательные chat_id через re_path
-    re_path(r'^users/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_users_info, name='get_group_info'),
+    re_path(r'^users/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_users_info, name='get_group_users'),
     re_path(r'^users/profile/(?P<chat_id>-?\d+)/(?P<user_id>\d+)/(?P<page>\d+)$', views.user_msgs, name='user_msgs'),
     re_path(r'^posts/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_posts, name='get_group_posts'),
 
