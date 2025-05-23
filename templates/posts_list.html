@@ -64,9 +64,25 @@
                         <p class="mb-2 fw-normal fs-5 text-dark">
                             {{ post.text }}
                         </p>
-                        <div class="text-end text-secondary small">
-                            <i class="bi bi-clock me-1"></i>
-                            Отправлено: {{ post.date }}
+                        <div class="text-end text-secondary small d-flex justify-content-end align-items-center gap-3 flex-wrap">
+                            <div>
+                                <i class="bi bi-clock me-1"></i>
+                                Отправлено: {{ post.date }}
+                            </div>
+                            {% if post.views %}
+                            <div>
+                                <i class="bi bi-eye me-1"></i>
+                                {{ post.views }}
+                            </div>
+                            {% endif %}
+                            {% if post.reactions %}
+                            <div>
+                                <i class="bi bi-heart me-1"></i>
+                                {% for emoji, count in post.reactions.items %}
+                                    {{ emoji }} {{ count }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
