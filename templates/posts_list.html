@@ -3,6 +3,17 @@
 
 {% block title %}Items List{% endblock title %}
 
+{% block left_side_menu %}
+<ul class="list-group list-group-flush bg-transparent">
+  <li class="list-group-item bg-transparent border-0 px-0">
+    <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}" class="fw-bold text-white text-decoration-none">Users</a>
+  </li>
+  <li class="list-group-item bg-transparent border-0 px-0">
+    <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}" class="fw-bold text-white text-decoration-none">Posts</a>
+  </li>
+</ul>
+{% endblock left_side_menu %}
+
 {% block content_area %}
 <div class="card">
     <div class="card-body">
