@@ -3,37 +3,37 @@
 
 {% block title %}Items List{% endblock title %}
 
-{% block left_side_menu %}
-<style>
-  .custom-menu a {
-    font-weight: 900; /* В 2 раза толще, чем обычный bold */
-    color: white;
-    padding-left: 20px;
-    display: block;
-    transition: color 0.2s ease;
-  }
+<!--{% block left_side_menu %}-->
+<!--<style>-->
+<!--  .custom-menu a {-->
+<!--    font-weight: 900; /* В 2 раза толще, чем обычный bold */-->
+<!--    color: white;-->
+<!--    padding-left: 20px;-->
+<!--    display: block;-->
+<!--    transition: color 0.2s ease;-->
+<!--  }-->
 
-  .custom-menu a:hover {
-    color: #0d6efd; /* Bootstrap синий */
-    text-decoration: none;
-  }
+<!--  .custom-menu a:hover {-->
+<!--    color: #0d6efd; /* Bootstrap синий */-->
+<!--    text-decoration: none;-->
+<!--  }-->
 
-  .custom-menu li {
-    background: transparent;
-    border: none;
-    padding-left: 0;
-  }
-</style>
+<!--  .custom-menu li {-->
+<!--    background: transparent;-->
+<!--    border: none;-->
+<!--    padding-left: 0;-->
+<!--  }-->
+<!--</style>-->
 
-<ul class="list-group list-group-flush custom-menu">
-  <li class="list-group-item">
-      <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}"><h4>Users</h4></a>
-  </li>
-  <li class="list-group-item">
-      <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}"><h4>Posts</h4></a>
-  </li>
-</ul>
-{% endblock left_side_menu %}
+<!--<ul class="list-group list-group-flush custom-menu">-->
+<!--  <li class="list-group-item">-->
+<!--      <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}"><h4>Users</h4></a>-->
+<!--  </li>-->
+<!--  <li class="list-group-item">-->
+<!--      <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}"><h4>Posts</h4></a>-->
+<!--  </li>-->
+<!--</ul>-->
+<!--{% endblock left_side_menu %}-->
 {% block left_side_menu %}
 <ul class="nav nav-sidebar" data-nav-type="accordion">
 
