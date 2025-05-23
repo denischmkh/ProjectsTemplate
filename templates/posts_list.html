@@ -27,10 +27,10 @@
 
 <ul class="list-group list-group-flush custom-menu">
   <li class="list-group-item">
-    <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}">Users</a>
+      <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}"><h4>Users</h4></a>
   </li>
   <li class="list-group-item">
-    <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}">Posts</a>
+      <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}"><h4>Posts</h4></a>
   </li>
 </ul>
 {% endblock left_side_menu %}
