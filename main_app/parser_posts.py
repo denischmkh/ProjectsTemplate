@@ -121,7 +121,7 @@ async def collect_all_user_messages(chat_id, target_user_id, max_messages=1000):
                 chat_id,
                 target_user_id,
                 views,
-                reactions
+                sum(reactions.values())
             )
 
         print(f"✅ Все сообщения от пользователя {target_user_id} сохранены.")
@@ -152,7 +152,7 @@ async def collect_all_messages_by_chat_id(chat_id):
                     reactions[emoji] = reaction_result.count
 
             # 🧠 Сохраняем пост с доп. данными
-            await save_post(msg, chat_id, sender_id, views, reactions)
+            await save_post(msg, chat_id, sender_id, views, sum(reactions.values()))
 
             print(f"📩 #{msg.id} — {msg.message[:50]} 👁 {views} 🔥 {reactions}")
             count += 1
