@@ -91,13 +91,17 @@
                             {{ user.last_name|default:"-" }}
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
-                            {{ message_count }}
+                            {% if user.phone %}
+                                +{{ user.phone }}
+                            {% else %}
+                                -
+                            {% endif %}
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
                             {{ user.last_seen }}
                         </td>
                         <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
-                            1
+                            {{ message_count }}
                         </td>
                         <td class="text-center">
                             {% if user.is_bot %}
