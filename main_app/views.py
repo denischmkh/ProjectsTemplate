@@ -100,13 +100,29 @@ def error_page(request):
 
 
 def get_group_posts(request, chat_id, title, page=1):
-    page = int(page)          # <-- добавь это
-    chat_id = int(chat_id)    # тоже рекомендую явно привести chat_id к int, особенно если с минусами
+    page = int(page)
+    chat_id = int(chat_id)
 
+    # Получаем текст из формы поиска, если он есть (POST)
+    search_word = None
+    if request.method == 'POST':
+        search_word = request.POST.get('search_word', '').strip()
+
+    # Фильтруем посты по chat_id
+    posts_query = Post.objects.filter(chat_id=chat_id)
+
+    # Если есть поисковый запрос, добавляем фильтр по тексту (поле "text" - замени на своё, если другое)
+    if search_word:
+        posts_query = posts_query.filter(text__icontains=search_word)
+
+    # Сортируем и берем срез для пагинации
     start = (page - 1) * 100
     end = page * 100
-    posts = Post.objects.filter(chat_id=chat_id).order_by('id')[start:end]
-    posts = {post: TelegramUser.objects.filter(telegram_id=post.sender_id).first() for post in posts}
+    posts_page = posts_query.order_by('id')[start:end]
+
+    # Формируем словарь пост: пользователь
+    posts = {post: TelegramUser.objects.filter(telegram_id=post.sender_id).first() for post in posts_page}
+
     has_next = len(posts) == 100
     has_previous = page > 1
 
@@ -120,6 +136,7 @@ def get_group_posts(request, chat_id, title, page=1):
         'chat_id': chat_id,
         'next_page': page + 1 if has_next else None,
         'previous_page': page - 1 if has_previous else None,
+        'search_word': search_word,  # чтобы можно было вернуть в форму, если нужно
     })
 
 def parse_index(request):
