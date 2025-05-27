@@ -12,16 +12,35 @@
         <i class="ph-dots-three sidebar-resize-show"></i>
     </li>
 
+    <li class="nav-item-header">
+        <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Main</div>
+        <i class="ph-dots-three sidebar-resize-show"></i>
+    </li>
+
     <li class="nav-item">
         <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}" class="nav-link">
-            <i class="ph-user"></i>
-            <span>Users</span>
+            <i class="bi bi-people-fill"></i>  <!-- Все пользователи -->
+            <span>Users All</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="{% url 'get_group_active_users' chat_id=chat_id title=title page=1 %}" class="nav-link">
+            <i class="bi bi-person-check-fill"></i>  <!-- Активные -->
+            <span>Active</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="{% url 'get_group_banned_users' chat_id=chat_id title=title page=1 %}" class="nav-link">
+            <i class="bi bi-person-x-fill"></i>  <!-- Забаненные -->
+            <span>Banned</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}" class="nav-link">
-            <i class="ph-note"></i>
+            <i class="bi bi-journal-text"></i>  <!-- Посты -->
             <span>Posts</span>
         </a>
     </li>

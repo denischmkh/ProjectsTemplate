@@ -5,6 +5,7 @@ import urllib
 from pprint import pprint
 from urllib.parse import unquote
 
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from asgiref.sync import async_to_sync, sync_to_async
@@ -60,7 +61,84 @@ def get_group_users_info(request, chat_id, title, page=1):
         return redirect('error')
 
 
+def get_group_banned_users_info(request, chat_id, title, page=1):
+    try:
+        page = int(page)
+        chat_id = int(chat_id)
 
+        start = (page - 1) * 50
+        end = page * 50
+
+        users = TelegramUser.objects.filter(chat_id=chat_id, is_banned=True)[start:end]
+        users_dict = {}
+        r = 1
+        for user in users:
+            users_dict[r] = (user, len(Post.objects.filter(chat_id=chat_id, sender_id=user.telegram_id)))
+            r += 1
+        has_next = len(users) == 50
+        has_previous = page > 1
+
+        title = unquote(title)
+
+        return render(request, 'users_list.html', context={
+            'users': users_dict,
+            'current_page': page,
+            'next_page': page + 1 if has_next else None,
+            'previous_page': page - 1 if has_previous else None,
+            'chat_id': chat_id,
+            'title': title
+        })
+    except Exception as e:
+        print(e)
+        return redirect('error')
+
+def get_group_active_users_info(request, chat_id, title, page=1):
+    try:
+        page = int(page)
+        chat_id = int(chat_id)
+
+        start = (page - 1) * 50
+        end = page * 50
+
+        users = TelegramUser.objects.filter(chat_id=chat_id, is_banned=False)[start:end]
+        users_dict = {}
+        r = 1
+        for user in users:
+            users_dict[r] = (user, len(Post.objects.filter(chat_id=chat_id, sender_id=user.telegram_id)))
+            r += 1
+        has_next = len(users) == 50
+        has_previous = page > 1
+
+        title = unquote(title)
+
+        return render(request, 'users_list.html', context={
+            'users': users_dict,
+            'current_page': page,
+            'next_page': page + 1 if has_next else None,
+            'previous_page': page - 1 if has_previous else None,
+            'chat_id': chat_id,
+            'title': title
+        })
+    except Exception as e:
+        print(e)
+        return redirect('error')
+
+
+def ban_user(request, chat_id, user_id):
+    chat_id = int(chat_id)
+    user_id = int(user_id)
+    user = TelegramUser.objects.filter(telegram_id=user_id, chat_id=chat_id).first()
+    user.is_banned = True
+    user.save()
+    return redirect("user_msgs", chat_id=chat_id, user_id=user_id, page=1)
+
+def unban_user(request, chat_id, user_id):
+    chat_id = int(chat_id)
+    user_id = int(user_id)
+    user = TelegramUser.objects.filter(telegram_id=user_id, chat_id=chat_id).first()
+    user.is_banned = False
+    user.save()
+    return redirect("user_msgs", chat_id=chat_id, user_id=user_id, page=1)
 
 def user_msgs(request, chat_id, user_id, page=1):
     try:
@@ -76,7 +154,7 @@ def user_msgs(request, chat_id, user_id, page=1):
         has_next = len(posts) == 50
         has_previous = page > 1
 
-        user = TelegramUser.objects.filter(telegram_id=user_id).first()
+        user = TelegramUser.objects.filter(telegram_id=user_id, chat_id=chat_id).first()
 
         return render(request, 'user_detail.html', {
             'posts': posts,
@@ -146,6 +224,9 @@ def parse_index(request):
             try:
                 if group_link:
                     chat_id, title = join_and_get_info_sync(group_link)
+                    if not chat_id:
+                        messages.error(request, "Не удалось вступить в чат!")  # 👈 передаём сообщение
+                        return redirect('index')
                     print(chat_id)
                     url = reverse('parse_group_info_full', kwargs={'chat_id': chat_id})
                     return redirect(url)

@@ -28,7 +28,12 @@ urlpatterns = [
     path('', views.index, name='index'),
 
     # Разрешаем отрицательные chat_id через re_path
-    re_path(r'^users/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_users_info, name='get_group_users'),
+    re_path(r'^users/all/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_users_info, name='get_group_users'),
+    re_path(r'^users/banned/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_banned_users_info, name='get_group_banned_users'),
+    re_path(r'^users/active/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_active_users_info, name='get_group_active_users'),
+    re_path(r'^users/ban/(?P<chat_id>-?\d+)/(?P<user_id>-?\d+)$', views.ban_user, name='ban_user'),
+    re_path(r'^users/unban/(?P<chat_id>-?\d+)/(?P<user_id>-?\d+)$', views.unban_user, name='unban_user'),
+
     re_path(r'^users/profile/(?P<chat_id>-?\d+)/(?P<user_id>\d+)/(?P<page>\d+)$', views.user_msgs, name='user_msgs'),
     re_path(r'^posts/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_posts, name='get_group_posts'),
 
