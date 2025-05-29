@@ -34,7 +34,7 @@ urlpatterns = [
     re_path(r'^users/ban/(?P<chat_id>-?\d+)/(?P<user_id>-?\d+)$', views.ban_user, name='ban_user'),
     re_path(r'^users/unban/(?P<chat_id>-?\d+)/(?P<user_id>-?\d+)$', views.unban_user, name='unban_user'),
 
-    re_path(r'^users/profile/(?P<chat_id>-?\d+)/(?P<user_id>\d+)/(?P<page>\d+)$', views.user_msgs, name='user_msgs'),
+    re_path(r'^users/profile/(?P<chat_id>-?\d+)/(?P<user_id>\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.user_msgs, name='user_msgs'),
     re_path(r'^posts/group/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_group_posts, name='get_group_posts'),
 
     path('users/error', views.error_page, name='error'),

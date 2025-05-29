@@ -140,7 +140,7 @@ def unban_user(request, chat_id, user_id):
     user.save()
     return redirect("user_msgs", chat_id=chat_id, user_id=user_id, page=1)
 
-def user_msgs(request, chat_id, user_id, page=1):
+def user_msgs(request, chat_id, user_id, title, page=1):
     try:
         page = int(page)
         chat_id = int(chat_id)
@@ -163,7 +163,8 @@ def user_msgs(request, chat_id, user_id, page=1):
             'next_page': page + 1 if has_next else None,
             'previous_page': page - 1 if has_previous else None,
             'user_id': user_id,
-            'chat_id': chat_id
+            'chat_id': chat_id,
+            'title': title
         })
     except Exception as e:
         print(e)

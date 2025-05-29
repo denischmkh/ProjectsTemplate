@@ -34,13 +34,13 @@
                         <!-- Name with Profile Link -->
                         <td style="white-space: nowrap;">
                         {% if user.image %}
-                            <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id page=1 %}">
+                            <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id title=title page=1 %}">
                             <img src="/media/{{ user.image }}" alt="{{ user.chat_id }}"
                                  class="rounded-circle"
                                  style="width: 50px; height: 50px; object-fit: cover;">
                             </a>
                         {% else %}
-                            <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id page=1 %}">
+                            <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id title=title page=1 %}">
                             <div class="bg-light rounded-circle d-flex align-items-center justify-content-center"
                                  style="width: 50px; height: 50px;">
                                 <i class="ph ph-user-circle fs-3 text-secondary"></i>
@@ -49,7 +49,7 @@
                         {% endif %}
                         </td>
                         <td style="white-space: nowrap;">
-                          <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id page=1 %}">
+                          <a href="{% url 'user_msgs' chat_id=chat_id user_id=user.telegram_id title=title page=1 %}">
                             {{ user.telegram_id|default:"-" }}
                           </a>
                         </td>
