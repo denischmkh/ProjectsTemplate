@@ -11,9 +11,9 @@ from django.core.paginator import Paginator
 from asgiref.sync import async_to_sync, sync_to_async
 from django.urls import reverse
 
-from .models import Post, TelegramUser
+from .models import Post, TelegramUser, ScheduledMessage
 
-from .forms import LoginForm, SignupForm  # ✅ лучше и понятнее
+from .forms import LoginForm, SignupForm, SimpleScheduleForm  # ✅ лучше и понятнее
 from .parser_posts import join_and_get_info_sync, create_posts_sync, create_posts_from_group_sync
 from .parser_users import create_users_sync
 from .parse_groups import get_group_titles
@@ -24,7 +24,7 @@ async def index(request):
         groups = await get_group_titles(chat_ids)
     except Exception:
         groups = {}
-
+    pprint(groups)
     return render(request, 'index.html', {'groups': groups})
 
 
@@ -255,6 +255,53 @@ def parse_group_info_full(request, chat_id):
     thread.daemon = True
     thread.start()
     return redirect('index')
+
+def get_scheduled_msgs(request, chat_id, title, page=1):
+    page = int(page)
+    chat_id = int(chat_id)
+    start = (page - 1) * 50
+    end = page * 50
+    scheduled_msgs = ScheduledMessage.objects.filter(chat_id=chat_id).order_by('-id')[start:end]
+    has_next = len(scheduled_msgs) == 100
+    has_previous = page > 1
+    return render(request, 'scheduled_msgs.html', context={
+        'has_previous': has_previous,
+        'has_next': has_next,
+        'current_page': page,
+        'title': title,
+        'messages': scheduled_msgs,
+        'chat_id': chat_id,
+        'next_page': page + 1 if has_next else None,
+        'previous_page': page - 1 if has_previous else None,
+    })
+
+def create_scheduled_msgs(request, chat_id, title):
+    chat_id = int(chat_id)  # Преобразуем chat_id в целое число
+    if request.method == 'POST':
+        form = SimpleScheduleForm(request.POST)
+        if form.is_valid():
+            message = form.cleaned_data['message']
+            scheduled_time = form.cleaned_data['scheduled_time']
+
+            print(f'Chat ID: {chat_id}')
+            print(f'Message: {message}')
+            print(f'Scheduled Time: {scheduled_time}')
+            ScheduledMessage.objects.get_or_create(
+                chat_id=chat_id,
+                message_text=message,
+                scheduled_time=scheduled_time,
+            )
+
+            return redirect('get_scheduled_msgs', chat_id=str(chat_id), title=title, page=1)
+    else:
+        form = SimpleScheduleForm()
+
+    return render(request, 'create_scheduled.html', context={
+        'title': title,
+        'chat_id': chat_id,
+        'form': form
+    })
+
 # from django.contrib.auth import authenticate, login
 # from django.shortcuts import redirect
 

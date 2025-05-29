@@ -4,45 +4,7 @@
 {% block title %}Items List{% endblock title %}
 
 
-{% block left_side_menu %}
-<ul class="nav nav-sidebar" data-nav-type="accordion">
 
-    <!-- Main -->
-    <li class="nav-item-header">
-        <div class="text-uppercase fs-sm lh-sm opacity-50 sidebar-resize-hide">Main</div>
-        <i class="ph-dots-three sidebar-resize-show"></i>
-    </li>
-
-    <li class="nav-item">
-        <a href="{% url 'get_group_users' chat_id=chat_id title=title page=1 %}" class="nav-link">
-            <i class="bi bi-people-fill"></i>  <!-- Все пользователи -->
-            <span>Users All</span>
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a href="{% url 'get_group_active_users' chat_id=chat_id title=title page=1 %}" class="nav-link">
-            <i class="bi bi-person-check-fill"></i>  <!-- Активные -->
-            <span>Active</span>
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a href="{% url 'get_group_banned_users' chat_id=chat_id title=title page=1 %}" class="nav-link">
-            <i class="bi bi-person-x-fill"></i>  <!-- Забаненные -->
-            <span>Banned</span>
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a href="{% url 'get_group_posts' chat_id=chat_id title=title page=1 %}" class="nav-link">
-            <i class="bi bi-journal-text"></i>  <!-- Посты -->
-            <span>Posts</span>
-        </a>
-    </li>
-
-</ul>
-{% endblock left_side_menu %}
 
 
 {% block content_area %}
@@ -52,17 +14,17 @@
         <table class="table tasks-list" style="table-layout: fixed;">
             <thead>
                 <tr>
-                    <th style="width: 70px;">Photo</th>
-                    <th style="width: 100px;">Telegram Id</th>
-                    <th style="width: 120px;">Username</th>
-                    <th style="width: 100px;">First Name</th>
-                    <th style="width: 100px;">Last Name</th>
-                    <th style="width: 120px;">Phone</th>
-                    <th style="width: 170px;">Last Active</th>
-                    <th style="width: 70px;">Posts</th>
-                    <th style="width: 100px;">Bot</th>
-                    <th style="width: 100px;">Scam</th>
-                    <th style="width: 90px;">Premium</th>
+                    <th style="width: 95px;">Photo</th>
+                    <th style="width: 135px;">Telegram Id</th>
+                    <th style="width: 160px;">Username</th>
+                    <th style="width: 135px;">First Name</th>
+                    <th style="width: 135px;">Last Name</th>
+                    <th style="width: 160px;">Phone</th>
+                    <th style="width: 230px;">Last Active</th>
+                    <th style="width: 95px;">Posts</th>
+                    <th style="width: 135px;">Bot</th>
+                    <th style="width: 135px;">Scam</th>
+                    <th style="width: 120px;">Premium</th>
                 </tr>
             </thead>
             <tbody>

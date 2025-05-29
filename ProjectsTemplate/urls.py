@@ -40,5 +40,7 @@ urlpatterns = [
     path('users/error', views.error_page, name='error'),
     path('parse/', views.parse_index, name='parse_index'),
     re_path(r'^parse/parse_group/(?P<chat_id>-?\d+)$', views.parse_group_info_full, name='parse_group_info_full'),
+    re_path(r'^posts/scheduled/(?P<chat_id>-?\d+)/(?P<title>[^/]+)/(?P<page>\d+)$', views.get_scheduled_msgs, name='get_scheduled_msgs'),
+    re_path(r'^posts/scheduled/create/(?P<chat_id>-?\d+)/(?P<title>[^/]+)$', views.create_scheduled_msgs, name='create_scheduled_msgs'),
 ]
 

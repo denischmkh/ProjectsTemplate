@@ -31,3 +31,10 @@ class TelegramUser(models.Model):
     scraped_at = models.DateTimeField(auto_now_add=True)
     last_seen = models.CharField(null=True, blank=True)
     is_banned = models.BooleanField(default=False)
+
+class ScheduledMessage(models.Model):
+    chat_id = models.BigIntegerField()
+    message_text = models.TextField()
+    scheduled_time = models.DateTimeField()
+    is_sent = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
